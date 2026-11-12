@@ -1,0 +1,569 @@
+<title>Cartographie FashMatch V1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Mise en page : une colonne de lecture, schéma pleine largeur, tableaux qui défilent dans leur propre cadre.
+   Orange = point de vigilance V1 · pointillés = hypothèse de l'équipe. */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --canvas:#FBFCFD; --ink:#18212E; --muted:#5D6878;
+  --line:#CDD4DE; --edge:#465264; --accent:#1F55E0; --accent-soft:#E6EDFD;
+  --vig:#C2410C; --vig-soft:#FDEDE4; --store:#EEF2F7; --tier:#F2EFF8; --hyp:#7A8494;
+  --f-body:"Public Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E131A; --surface:#151C26; --canvas:#121821; --ink:#E5EAF1; --muted:#97A2B2;
+  --line:#2C3746; --edge:#AEB8C6; --accent:#7EA2FF; --accent-soft:#1B2740;
+  --vig:#FF8B52; --vig-soft:#33211A; --store:#1A2330; --tier:#211D2E; --hyp:#8D97A6; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E131A; --surface:#151C26; --canvas:#121821; --ink:#E5EAF1; --muted:#97A2B2;
+  --line:#2C3746; --edge:#AEB8C6; --accent:#7EA2FF; --accent-soft:#1B2740;
+  --vig:#FF8B52; --vig-soft:#33211A; --store:#1A2330; --tier:#211D2E; --hyp:#8D97A6; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:32px 64px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(26px,4vw,38px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lede{max-width:72ch;color:var(--muted);font-size:16px}
+header{display:flex;flex-direction:column;gap:12px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:8px;font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.stats b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.stats .v b{color:var(--vig)}
+section{display:flex;flex-direction:column;gap:16px}
+.sec-head{display:flex;flex-direction:column;gap:6px;max-width:80ch}
+.sec-head p{color:var(--muted)}
+
+/* Légende */
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 20px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px}
+.legend div{display:flex;align-items:center;gap:10px;font-size:13.5px;min-width:0}
+.legend svg{flex:none}
+
+/* Filtres */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 13.5px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.chip:focus-visible,.flows tr:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Schéma */
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.diagram{background:var(--canvas);border:1px solid var(--line);border-radius:8px;overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:1000px;height:auto;color:var(--ink)}
+figcaption{font-size:13.5px;color:var(--muted);max-width:90ch}
+svg .box{fill:var(--surface);stroke:var(--edge);stroke-width:1.2}
+svg .box.store{fill:var(--store)}
+svg .box.tier{fill:var(--tier)}
+svg .box.vig{stroke:var(--vig);stroke-width:2}
+svg .box.hyp{stroke-dasharray:5 4}
+svg .cloud{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:8 5}
+svg .t-title{fill:var(--ink);font:600 13.5px var(--f-body)}
+svg .t-sub{fill:var(--muted);font:400 11.5px var(--f-body)}
+svg .t-sub.vig{fill:var(--vig);font-weight:600}
+svg .t-ia{fill:var(--accent);font:500 10.5px var(--f-mono)}
+svg .t-cloud{fill:var(--muted);font:500 12px var(--f-body)}
+svg .t-cloud.vig{fill:var(--vig)}
+svg .t-note{fill:var(--muted);font:italic 11.5px var(--f-body)}
+svg .wire{fill:none;stroke:var(--edge);stroke-width:1.4}
+svg .wire.vig{stroke:var(--vig);stroke-width:1.8}
+svg .wire.hyp{stroke-dasharray:5 4}
+svg .tick{stroke:var(--vig);stroke-width:1.8}
+svg .lbl{fill:var(--ink);font:500 11.5px var(--f-body);paint-order:stroke;stroke:var(--canvas);stroke-width:4px;stroke-linejoin:round}
+svg .lbl.vig{fill:var(--vig);font-weight:600}
+svg .mk{fill:var(--edge)} svg .mk.vig{fill:var(--vig)}
+svg .node,svg .edge{transition:opacity .2s}
+svg .dim{opacity:.12}
+svg .edge.hl .wire{stroke-width:3.2}
+@media (prefers-reduced-motion:reduce){svg .node,svg .edge{transition:none}}
+
+/* Tableaux */
+.tbl{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font:600 11.5px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--canvas);position:sticky;top:0}
+tr:last-child td{border-bottom:none}
+td.id{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
+td.from{white-space:nowrap;font-weight:500}
+.flows table{min-width:960px}
+.flows tr.off{display:none}
+.flows tbody tr{cursor:default}
+.flows tbody tr:hover td{background:var(--accent-soft)}
+.tag{display:inline-block;font:500 11px var(--f-mono);padding:1px 7px;border-radius:4px;margin:1px 4px 1px 0;white-space:nowrap}
+.tag.v{background:var(--vig-soft);color:var(--vig)}
+.tag.h{border:1px dashed var(--hyp);color:var(--hyp)}
+.tag.ok{background:var(--store);color:var(--muted)}
+.vtxt{color:var(--vig)}
+.htxt{color:var(--hyp);font-style:italic}
+
+/* Pipeline V1 */
+.pipe table{min-width:1180px;table-layout:fixed}
+.pipe th:first-child,.pipe td:first-child{width:130px}
+.pipe td{font-size:13px;line-height:1.45}
+.pipe td.mod{font-weight:700;font-size:15px}
+.pipe td.mod small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.pipe td.v{background:var(--vig-soft)}
+.pipe td.v::before{content:"⚠ ";color:var(--vig);font-weight:700}
+.pipe td.h{color:var(--hyp)}
+.pipe tr.focus td.mod{color:var(--accent)}
+.pipe tr.faded{opacity:.35}
+.steps-note{font-size:13px;color:var(--muted)}
+
+.inv table{min-width:1040px}
+.tiers table{min-width:900px}
+
+.gaps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.gap{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--vig);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.gap h3{font-size:15px}
+.gap p{font-size:13.5px;color:var(--muted)}
+.hyps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:90ch}
+.hyps li{font-size:14px}
+.hyps li span{font-family:var(--f-mono);font-size:12px;color:var(--hyp);margin-right:6px}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Croisée des Arts 2026 · Volet Data/IA · État des lieux</span>
+  <h1>FashMatch V1 : l’architecture et le trajet des données</h1>
+  <p class="lede">Ce document décrit la V1 telle qu’elle existe aujourd’hui : d’où vient chaque donnée, par où elle passe, où elle est rangée et ce qu’elle devient. Il ne propose pas encore de corrections. Il sert de base commune aux DPO et aux Data/IA pour la matrice de tri et pour le pipeline avant / après.</p>
+  <p class="lede">Tout ce qui vient de l’énoncé ou du kick-off est présenté comme un fait. Ce que l’énoncé ne dit pas et que nous avons dû supposer est marqué <span class="tag h">hypothèse</span>.</p>
+  <div class="stats">
+    <span><b>6</b> modules</span>
+    <span><b>8</b> espaces de stockage</span>
+    <span><b>5</b> tiers, hébergeur compris</span>
+    <span><b>27</b> flux de données</span>
+    <span class="v"><b>0</b> journal des accès internes</span>
+    <span class="v"><b>0</b> purge documentée</span>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head">
+    <span class="eyebrow">Comment lire le schéma</span>
+    <h2>Quatre symboles, deux codes</h2>
+    <p>Le schéma se lit de haut en bas : les personnes, les points d’entrée (application et site), l’API qui reçoit tout, les six modules, les stockages, puis les tiers hors de FashMatch. Chaque flèche porte le nom de la donnée qu’elle transporte.</p>
+  </div>
+  <div class="legend">
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="10" fill="var(--surface)" stroke="var(--edge)"/></svg>Personne (acteur)</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="3" fill="var(--surface)" stroke="var(--edge)"/></svg>Traitement : un service qui agit</div>
+    <div><svg width="46" height="28" viewBox="0 0 46 28" aria-hidden="true"><path d="M1 6 A22 5 0 0 1 45 6 V22 A22 5 0 0 1 1 22 Z" fill="var(--store)" stroke="var(--edge)"/><path d="M1 6 A22 5 0 0 0 45 6" fill="none" stroke="var(--edge)"/></svg>Stockage : base, bucket</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="1" fill="var(--tier)" stroke="var(--edge)"/></svg>Tiers externe</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="3" fill="var(--surface)" stroke="var(--vig)" stroke-width="2"/></svg><span class="vtxt">Orange : point de vigilance</span></div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="3" fill="none" stroke="var(--hyp)" stroke-dasharray="5 4"/></svg><span class="htxt">Pointillés : hypothèse</span></div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="0" fill="none" stroke="var(--muted)" stroke-dasharray="8 5"/></svg>Frontière de l’hébergeur cloud</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><line x1="2" y1="12" x2="44" y2="12" stroke="var(--edge)" stroke-width="1.4"/><path d="M36 7 L44 12 L36 17 Z" fill="var(--edge)"/><path d="M10 7 L2 12 L10 17 Z" fill="var(--edge)"/></svg>Flèche double : aller et retour</div>
+  </div>
+</section>
+
+<section id="schema">
+  <div class="sec-head">
+    <span class="eyebrow">Vue d’ensemble</span>
+    <h2>L’architecture technique de la V1</h2>
+    <p>Choisis un module pour n’afficher que son chemin. Le tableau des flux en dessous suit le même filtre.</p>
+  </div>
+  <div class="chips" role="group" aria-label="Filtrer par module">
+    <button class="chip" id="f-all" data-f="all" aria-pressed="true">Tout voir</button>
+    <button class="chip" id="f-match" data-f="match" aria-pressed="false">Match</button>
+    <button class="chip" id="f-pay" data-f="pay" aria-pressed="false">Pay3x</button>
+    <button class="chip" id="f-age" data-f="age" aria-pressed="false">Âge</button>
+    <button class="chip" id="f-cabine" data-f="cabine" aria-pressed="false">Cabine</button>
+    <button class="chip" id="f-insight" data-f="insight" aria-pressed="false">Insight</button>
+    <button class="chip" id="f-stella" data-f="stella" aria-pressed="false">Stella</button>
+  </div>
+  <figure>
+    <div class="diagram">
+      <svg id="arch" viewBox="0 0 1200 786" role="img" aria-label="Architecture FashMatch V1 : le client passe par l’app ou le site, une API (supposée unique) répartit les requêtes vers six modules, qui écrivent dans huit stockages chez un hébergeur cloud dont certains services sont hors UE. Quatre tiers échangent des données avec FashMatch : prestataire de paiement, réseaux sociaux et forums, canaux marketing (supposés) et fournisseur du modèle de Stella. Les accès internes ne sont pas journalisés."></svg>
+    </div>
+    <figcaption>Tout ce qui est dans le cadre en pointillés tourne chez l’hébergeur cloud, qui est lui-même un sous-traitant. Les flèches orange signalent un point de vigilance. Les accès internes ne sont pas journalisés (fait). Nous supposons qu’ils portent sur toutes les bases : c’est la ligne orange en pointillés à gauche, reliée par de petits traits à chaque stockage.</figcaption>
+  </figure>
+
+  <div class="tbl flows">
+    <table>
+      <thead><tr><th>N°</th><th>De → vers</th><th>Donnée transportée</th><th>Comment elle circule</th><th>Constat V1</th></tr></thead>
+      <tbody id="flows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="pipeline">
+  <div class="sec-head">
+    <span class="eyebrow">Pipeline V1 · avant</span>
+    <h2>Le trajet de la donnée, module par module</h2>
+    <p>Chaque ligne suit les six étapes du kick-off. La V2 reprendra exactement les mêmes colonnes, ce qui permettra de comparer étape par étape ce qui change.</p>
+  </div>
+  <div class="tbl pipe">
+    <table>
+      <thead><tr><th>Module</th><th>1 · Collecte</th><th>2 · Transport</th><th>3 · Stockage</th><th>4 · Traitement</th><th>5 · Sortie</th><th>6 · Suppression</th></tr></thead>
+      <tbody id="pipe"></tbody>
+    </table>
+  </div>
+  <p class="steps-note">Case orange : point de vigilance. Texte gris : hypothèse à valider.</p>
+</section>
+
+<section id="inventaire">
+  <div class="sec-head">
+    <span class="eyebrow">Inventaire</span>
+    <h2>Chaque donnée, une ligne</h2>
+    <p>La colonne « Catégorie » ne tranche pas la qualification juridique. Elle signale ce que les DPO doivent qualifier : données sensibles, biométrie, données de mineurs.</p>
+  </div>
+  <div class="tbl inv">
+    <table>
+      <thead><tr><th>Donnée</th><th>Module(s)</th><th>Personnelle ?</th><th>Catégorie à qualifier</th><th>D’où elle vient</th><th>Où elle est rangée</th><th>Durée</th><th>Qui d’autre la reçoit</th></tr></thead>
+      <tbody id="inv"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="tiers">
+  <div class="sec-head">
+    <span class="eyebrow">Ce qui sort de FashMatch</span>
+    <h2>Les tiers et les questions ouvertes</h2>
+    <p>Une donnée qui sort de chez FashMatch reste sous sa responsabilité. Pour chaque tiers, voici ce que nous savons et ce qu’il faut encore établir.</p>
+  </div>
+  <div class="tbl tiers">
+    <table>
+      <thead><tr><th>Tiers</th><th>Ce qui sort (ou entre)</th><th>Localisation</th><th>Ce que l’on sait</th><th>Questions ouvertes</th></tr></thead>
+      <tbody id="tiersb"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="transverse">
+  <div class="sec-head">
+    <span class="eyebrow">Couche transverse</span>
+    <h2>Ce qui manque partout en V1</h2>
+    <p>Le gabarit d’architecture prévoit une couche transverse qui traverse tous les modules. En V1, elle est absente.</p>
+  </div>
+  <div class="gaps" id="gaps"></div>
+</section>
+
+<section id="hypotheses">
+  <div class="sec-head">
+    <span class="eyebrow">À valider en groupe</span>
+    <h2>Les hypothèses que nous avons posées</h2>
+    <p>L’énoncé ne précise pas ces points. Nous avons retenu l’option la plus vraisemblable. Si une hypothèse est fausse, le schéma et le tableau des flux doivent être corrigés ensemble.</p>
+  </div>
+  <ol class="hyps" id="hyps"></ol>
+</section>
+
+<footer>Sources : énoncé « À la croisée des Arts » (FashMatch V1, modules, contexte technique, crise) et supports Data/IA du 9 et du 10 novembre 2026. Ce document décrit la V1 et ne contient aucune mesure corrective.</footer>
+</div>
+
+<script>
+(function(){
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("arch");
+function el(tag, attrs, parent){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function txt(parent, x, y, s, cls, anchor){ const t = el("text", {x, y, class: cls, "text-anchor": anchor || "middle"}, parent); t.textContent = s; return t; }
+
+/* ---------- Défs : pointes de flèche ---------- */
+const defs = el("defs", {}, svg);
+[["ah","mk"],["ahv","mk vig"]].forEach(([id, cls]) => {
+  const m = el("marker", {id, viewBox:"0 0 10 10", refX:"9", refY:"5", markerWidth:"7", markerHeight:"7", orient:"auto-start-reverse", markerUnits:"userSpaceOnUse"}, defs);
+  el("path", {d:"M0 0 L10 5 L0 10 Z", class: cls}, m);
+});
+// markerUnits userSpaceOnUse: taille en unités du schéma
+defs.querySelectorAll("marker").forEach(m => { m.setAttribute("markerWidth","9"); m.setAttribute("markerHeight","9"); });
+
+/* ---------- Cadre hébergeur ---------- */
+const bg = el("g", {}, svg);
+el("rect", {x:6, y:228, width:1186, height:420, class:"cloud"}, bg);
+const cl = el("text", {x:1186, y:220, "text-anchor":"end", class:"t-cloud"}, bg);
+const s1 = el("tspan", {}, cl); s1.textContent = "Hébergeur cloud (sous-traitant) · ";
+const s2 = el("tspan", {class:"t-cloud vig"}, cl); s2.textContent = "une partie des services opérée hors UE";
+
+/* ---------- Nœuds ---------- */
+// type : actor | proc | api | store | tier ; m : modules concernés ("*" = toujours)
+const nodes = [
+  {id:"P_equipe", t:"actor", x:30,  y:30, w:170, h:50, title:"Équipe interne", sub:"6 personnes", m:"*"},
+  {id:"P_client", t:"actor", x:420, y:30, w:200, h:50, title:"Client", sub:"15 ans et plus, en principe", m:"*"},
+  {id:"P_tiers",  t:"actor", x:760, y:30, w:230, h:50, title:"Personne non cliente", sub:"photo publiée sur Instagram", m:"cabine", vig:true},
+  {id:"A_console",t:"proc",  x:30,  y:150, w:170, h:56, title:"Accès internes", sub:"forme exacte inconnue", m:"*", hyp:true},
+  {id:"A_mobile", t:"proc",  x:380, y:150, w:150, h:56, title:"App mobile", sub:"téléphone du client", m:"*"},
+  {id:"A_web",    t:"proc",  x:550, y:150, w:150, h:56, title:"Site web", sub:"navigateur", m:"*"},
+  {id:"API",      t:"api",   x:40,  y:250, w:1120, h:56, title:"API FashMatch", sub:"point d’entrée supposé unique : comptes, sessions, envoi des requêtes vers les modules", m:"*", hyp:true},
+  {id:"S_match",  t:"proc", x:40,  y:370, w:170, h:72, title:"Match", sub:"Recommandation", ia:"IA · modèle de reco", m:"match"},
+  {id:"S_pay",    t:"proc", x:230, y:370, w:170, h:72, title:"Pay3x", sub:"Paiement fractionné", ia:"score automatique · IA ?", m:"pay"},
+  {id:"S_age",    t:"proc", x:420, y:370, w:170, h:72, title:"Âge", sub:"Contrôle à l’inscription", ia:"IA · estimation faciale", m:"age"},
+  {id:"S_cab",    t:"proc", x:610, y:370, w:170, h:72, title:"Cabine", sub:"Essayage virtuel", ia:"IA · modèle génératif", m:"cabine"},
+  {id:"S_ins",    t:"proc", x:800, y:370, w:170, h:72, title:"Insight", sub:"Segmentation marketing", ia:"IA · analyse d’images", m:"insight", vig:true},
+  {id:"S_ste",    t:"proc", x:990, y:370, w:170, h:72, title:"Stella", sub:"Styliste conversationnel", ia:"IA · LLM d’un tiers", m:"stella"},
+  {id:"D_cpt", t:"store", x:50,  y:520, w:120, h:74, title:"Comptes\n& profils", sub:"5 ans", m:"*"},
+  {id:"D_evt", t:"store", x:190, y:520, w:120, h:74, title:"Événements\n& achats", sub:"5 ans", m:"match pay"},
+  {id:"D_pay", t:"store", x:350, y:520, w:100, h:74, title:"Scores\nPay3x", sub:"hypothèse", m:"pay", hyp:true},
+  {id:"D_pho", t:"store", x:470, y:520, w:120, h:74, title:"Bucket\nphotos", sub:"en clair · hors UE ?", m:"age cabine insight", vig:true},
+  {id:"D_img", t:"store", x:610, y:520, w:120, h:74, title:"Images\ngénérées", sub:"durée ?", m:"cabine"},
+  {id:"D_trn", t:"store", x:750, y:520, w:120, h:74, title:"Jeu\nd’entraînement", sub:"durée ?", m:"cabine stella match", vig:true},
+  {id:"D_seg", t:"store", x:890, y:520, w:120, h:74, title:"Segments\nmarketing", sub:"données sensibles", m:"insight", vig:true},
+  {id:"D_cnv", t:"store", x:1030,y:520, w:120, h:74, title:"Conversations\nStella", sub:"durée ?", m:"stella"},
+  {id:"T_psp",  t:"tier", x:255, y:710, w:170, h:56, title:"Prestataire de paiement", sub:"pays ?", m:"pay"},
+  {id:"T_soc",  t:"tier", x:640, y:710, w:170, h:56, title:"Réseaux, forums", sub:"hors de tout contrôle", m:"cabine", vig:true},
+  {id:"T_mkt",  t:"tier", x:870, y:710, w:150, h:56, title:"Canaux marketing", sub:"hypothèse", m:"insight", hyp:true},
+  {id:"T_gpai", t:"tier", x:1035,y:710, w:155, h:56, title:"Fournisseur GPAI", sub:"API du modèle · pays ?", m:"stella"}
+];
+
+/* ---------- Flux ---------- */
+// p : points du tracé ; both : aller-retour ; l : étiquette (lignes) ; lx/ly/a : position ; rot : rotation
+const edges = [
+  {id:"F01", m:"cabine", vig:true, hyp:false, dash:true, p:[[760,55],[622,55]], l:["photo copiée"], lx:691, ly:47,
+   de:"Personne non cliente → Client", d:"Sa photo, publiée sur son compte Instagram", c:"Copiée hors de FashMatch, puis importée dans Cabine comme un selfie", k:[["v","Jamais cliente"],["v","Image retrouvée sur un forum"]]},
+  {id:"F02", m:"*", p:[[520,80],[520,116],[455,116],[455,148]], p2:[[520,116],[625,116],[625,148]], l:["saisies, clics, photos, messages"], lx:640, ly:110, a:"start",
+   de:"Client → App mobile / Site web", d:"Identité, date de naissance, préférences, clics, photos, messages", c:"Formulaires, navigation, import de photos, chat", k:[["v","Âge déclaré non fiable"]]},
+  {id:"F03", m:"*", both:true, hyp:true, p:[[455,206],[455,248]], p2:[[625,206],[625,248]], l:["HTTPS ? · IP, cookies"], lx:540, ly:244,
+   de:"App / Site ↔ API", d:"Toutes les requêtes, adresse IP, identifiants de session et cookies", c:"Internet. HTTPS supposé, rien n’est documenté", k:[["h","hypothèse"]]},
+  {id:"F04", m:"*", p:[[115,80],[115,148]], l:["identifiants"], lx:122, ly:118, a:"start",
+   de:"Équipe interne → Accès internes", d:"Identifiants de l’équipe tech", c:"Console d’administration et accès directs aux bases", k:[["h","Authentification forte non documentée"]]},
+  {id:"F05", m:"*", vig:true, hyp:true, p:[[30,178],[22,178],[22,604],[1150,604]], ticks:[110,250,400,530,670,810,950,1090], l:["accès internes non journalisés · périmètre supposé"], lx:17, ly:420, rot:true,
+   de:"Accès internes → Bases", d:"Données consultées par l’équipe", c:"Périmètre et mode d’accès non documentés", k:[["v","Accès non journalisés"],["h","Accès à toutes les bases supposé"]]},
+  {id:"F06", m:"* age", hyp:true, p:[[40,292],[32,292],[32,545],[48,545]], l:["compte, préférences,","âge estimé"], lx:56, ly:466, a:"start",
+   de:"API → Comptes & profils", d:"Compte, âge déclaré, préférences déclarées, âge estimé", c:"Écriture en base", k:[["v","Préférences : 5 ans par défaut"],["h","Stockage de l’âge estimé supposé"]]},
+  {id:"F07", m:"match", both:true, p:[[125,306],[125,368]], l:["↓ clics, navigation","↑ produits recommandés"], lx:133, ly:330, a:"start",
+   de:"API ↔ Match", d:"Clics, contexte de navigation ↓ / produits recommandés ↑", c:"Appel interne", k:[["h","Information du client non documentée"]]},
+  {id:"F08", m:"match", both:true, p:[[200,444],[200,518]], l:["navigation"], lx:206, ly:462, a:"start",
+   de:"Match ↔ Événements & achats", d:"Historique de navigation et d’achats", c:"Lecture et écriture en base", k:[["v","5 ans par défaut"]]},
+  {id:"F09", m:"pay", both:true, vig:true, p:[[315,306],[315,368]], l:["↓ demande 3x / 4x","↑ refus affiché sans motif"], lx:323, ly:330, a:"start",
+   de:"API ↔ Pay3x", d:"Demande de paiement fractionné ↓ / accord ou refus ↑", c:"Appel interne", k:[["v","Refus sans motif"],["v","Décision 100 % automatique"]]},
+  {id:"F10", m:"pay", p:[[280,518],[280,444]], l:["achats"], lx:286, ly:470, a:"start",
+   de:"Événements & achats → Pay3x", d:"Historique d’achats du client", c:"Lecture en base", k:[]},
+  {id:"F11", m:"pay", both:true, p:[[340,444],[340,708]], l:["paiements, incidents ↕","données du prestataire"], lx:346, ly:678, a:"start",
+   de:"Pay3x ↔ Prestataire de paiement", d:"Paiements et incidents de paiement ↓ vers le prestataire / données transmises par le prestataire ↑", c:"Échange avec le prestataire (moyen technique non documenté)", k:[["h","Contenu des données du prestataire inconnu"]]},
+  {id:"F12", m:"pay", vig:true, hyp:true, p:[[385,444],[385,518]], l:["score + décision"], lx:391, ly:470, a:"start",
+   de:"Pay3x → Scores Pay3x", d:"Score calculé et décision d’éligibilité", c:"Écriture en base (supposée)", k:[["v","Une mineure a pu l’utiliser"],["h","Stockage et durée non documentés"]]},
+  {id:"F13", m:"age", both:true, vig:true, p:[[505,306],[505,368]], l:["↓ photo du visage","↑ refus sans recours"], lx:513, ly:330, a:"start",
+   de:"API ↔ Âge", d:"Photo du visage ↓ / inscription acceptée ou refusée ↑", c:"Appel interne à l’inscription", k:[["v","Refus sans explication ni recours"],["v","Contournable par photo retouchée"]]},
+  {id:"F14", m:"age", hyp:true, p:[[530,444],[530,518]], l:["photo du visage"], lx:524, ly:500, a:"end",
+   de:"Âge → Bucket photos", d:"Photo du visage", c:"Écriture objet", k:[["h","Même bucket que Cabine"]]},
+  {id:"F15", m:"cabine", both:true, p:[[695,306],[695,368]], l:["↓ selfie + tenue","↑ image réaliste"], lx:703, ly:330, a:"start",
+   de:"API ↔ Cabine", d:"Selfie ou photo en pied + tenue choisie ↓ / image générée ↑", c:"Import de photo depuis l’app", k:[["v","N’importe quelle photo acceptée"]]},
+  {id:"F16", m:"cabine", vig:true, p:[[640,444],[640,478],[575,478],[575,518]], l:["selfies"], lx:607, ly:472,
+   de:"Cabine → Bucket photos", d:"Selfies et photos en pied", c:"Écriture objet", k:[["v","Stockées en clair"],["v","Hors UE"],["v","5 ans"]]},
+  {id:"F17", m:"cabine", p:[[670,444],[670,518]], l:["image générée"], lx:676, ly:462, a:"start",
+   de:"Cabine → Images générées", d:"Image réaliste du client portant la tenue", c:"Écriture objet", k:[["v","Aucun filtre sur les tenues"],["v","Durée non définie"]]},
+  {id:"F18", m:"cabine", vig:true, p:[[720,596],[720,708]], l:["partagée sans mention IA"], lx:726, ly:682, a:"start",
+   de:"Images générées → Réseaux, forums", d:"Image générée", c:"Téléchargée ou partagée depuis l’app", k:[["v","Aucune mention particulière"],["v","Impossible à rappeler"]]},
+  {id:"F19", m:"cabine", vig:true, p:[[560,596],[560,618],[790,618],[790,598]], l:["photos réutilisées"], lx:630, ly:634,
+   de:"Bucket photos → Jeu d’entraînement", d:"Photos des clients", c:"Copie vers le jeu d’entraînement", k:[["v","Autre finalité que l’essayage"]]},
+  {id:"F20", m:"cabine", vig:true, p:[[770,518],[770,444]], l:["entraîne le modèle"], lx:776, ly:508, a:"start",
+   de:"Jeu d’entraînement → Cabine (et Match)", d:"Données des premiers clients", c:"Ajustement des modèles", k:[["v","Modèles ajustés sur données clients"]]},
+  {id:"F21", m:"insight", vig:true, p:[[555,518],[555,492],[815,492],[815,444]], l:["toutes les photos"], lx:821, ly:470, a:"start",
+   de:"Bucket photos → Insight", d:"Toutes les photos importées par les clients", c:"Lecture en lot", k:[["v","Photos détournées de leur usage"],["h","Traitement en lot"]]},
+  {id:"F22", m:"insight", vig:true, p:[[950,444],[950,518]], l:["religion, orientation,","origine supposées"], lx:956, ly:466, a:"start",
+   de:"Insight → Segments marketing", d:"Signes religieux, orientation sexuelle supposée, origine", c:"Écriture en base", k:[["v","Données sensibles déduites"]]},
+  {id:"F23", m:"insight", vig:true, hyp:true, p:[[950,596],[950,708]], l:["campagnes ciblées"], lx:956, ly:682, a:"start",
+   de:"Segments marketing → Canaux marketing", d:"Segments et listes de clients ciblés", c:"Export vers les outils de campagne", k:[["h","Outils non nommés dans l’énoncé"]]},
+  {id:"F24", m:"stella", both:true, p:[[1075,306],[1075,368]], l:["↓ messages","↑ réponses + produits"], lx:1067, ly:330, a:"end",
+   de:"API ↔ Stella", d:"Messages du client ↓ / conseils et produits poussés ↑", c:"Chat dans l’app", k:[["v","Prénom et avatar humains"],["h","Mention IA non documentée"]]},
+  {id:"F25", m:"stella", both:true, vig:true, p:[[1160,406],[1182,406],[1182,708]], l:["messages + contexte"], lx:1176, ly:662, a:"end",
+   de:"Stella ↔ Fournisseur GPAI", d:"Messages et contexte client ↓ / réponse générée ↑", c:"Appel à l’API du fournisseur, sur Internet", k:[["v","Pays et conservation inconnus"],["h","Contexte client joint"]]},
+  {id:"F26", m:"stella", vig:true, p:[[1120,444],[1120,518]], l:["historique"], lx:1114, ly:500, a:"end",
+   de:"Stella → Conversations", d:"Conversations complètes", c:"Écriture en base", k:[["v","Conservées pour améliorer le service"],["h","Durée non documentée"]]},
+  {id:"F27", m:"stella", hyp:true, p:[[1090,596],[1090,618],[830,618],[830,598]], l:["conversations"], lx:1000, ly:634,
+   de:"Conversations → Jeu d’entraînement", d:"Conversations", c:"Copie « pour améliorer le service »", k:[["h","Réutilisation supposée"]]}
+];
+
+const notes = [{x:885, y:344, s:"lancé en lot (hyp.)", m:"insight"}];
+
+/* ---------- Rendu ---------- */
+const gEdges = el("g", {}, svg);
+const gNodes = el("g", {}, svg);
+const gLabels = el("g", {}, svg);
+
+function poly(g, pts, e){
+  const cls = "wire" + (e.vig ? " vig" : "") + ((e.hyp || e.dash) ? " hyp" : "");
+  const a = {points: pts.map(p => p.join(",")).join(" "), class: cls};
+  if (!e.ticks) a["marker-end"] = e.vig ? "url(#ahv)" : "url(#ah)";
+  if (e.both) a["marker-start"] = e.vig ? "url(#ahv)" : "url(#ah)";
+  el("polyline", a, g);
+}
+edges.forEach(e => {
+  const g = el("g", {class:"edge", "data-m": e.m, "data-id": e.id}, gEdges);
+  poly(g, e.p, e);
+  if (e.p2) poly(g, e.p2, e);
+  if (e.ticks) e.ticks.forEach(x => el("line", {x1:x, y1:596, x2:x, y2:604, class:"tick"}, g));
+  const lg = el("g", {class:"edge", "data-m": e.m, "data-id": e.id}, gLabels);
+  e.l.forEach((s, i) => {
+    const t = txt(lg, e.lx, e.ly + i * 14, s, "lbl" + (e.vig ? " vig" : ""), e.a || "middle");
+    if (e.rot) t.setAttribute("transform", `rotate(-90 ${e.lx} ${e.ly})`);
+  });
+});
+notes.forEach(n => { const g = el("g", {class:"node", "data-m": n.m}, gLabels); txt(g, n.x, n.y, n.s, "t-note"); });
+
+nodes.forEach(n => {
+  const g = el("g", {class:"node", "data-m": n.m, "data-id": n.id}, gNodes);
+  const cls = "box" + (n.t === "store" ? " store" : "") + (n.t === "tier" ? " tier" : "") + (n.vig ? " vig" : "") + (n.hyp ? " hyp" : "");
+  const cx = n.x + n.w / 2;
+  if (n.t === "store"){
+    const rx = n.w / 2, ry = 7;
+    el("path", {d:`M${n.x} ${n.y+ry} A${rx} ${ry} 0 0 1 ${n.x+n.w} ${n.y+ry} V${n.y+n.h-ry} A${rx} ${ry} 0 0 1 ${n.x} ${n.y+n.h-ry} Z`, class: cls}, g);
+    el("path", {d:`M${n.x} ${n.y+ry} A${rx} ${ry} 0 0 0 ${n.x+n.w} ${n.y+ry}`, class: cls, fill:"none", style:"fill:none"}, g);
+    n.title.split("\n").forEach((s, i) => txt(g, cx, n.y + 30 + i * 15, s, "t-title"));
+    txt(g, cx, n.y + 64, n.sub, "t-sub" + (n.vig ? " vig" : ""));
+  } else {
+    const rx = n.t === "actor" ? n.h / 2 : (n.t === "tier" ? 2 : 6);
+    el("rect", {x:n.x, y:n.y, width:n.w, height:n.h, rx, class: cls}, g);
+    if (n.ia){
+      txt(g, cx, n.y + 22, n.title, "t-title");
+      txt(g, cx, n.y + 39, n.sub, "t-sub");
+      txt(g, cx, n.y + 58, n.ia, "t-ia");
+    } else {
+      txt(g, cx, n.y + (n.sub ? n.h / 2 - 3 : n.h / 2 + 5), n.title, "t-title");
+      if (n.sub) txt(g, cx, n.y + n.h / 2 + 14, n.sub, "t-sub" + (n.vig ? " vig" : ""));
+    }
+  }
+});
+
+/* ---------- Tableau des flux ---------- */
+const tb = document.getElementById("flows");
+edges.forEach(e => {
+  const tr = document.createElement("tr");
+  tr.dataset.m = e.m; tr.dataset.id = e.id; tr.tabIndex = 0;
+  const tags = e.k.map(([t, s]) => `<span class="tag ${t}">${s}</span>`).join("") || `<span class="tag ok">rien de signalé</span>`;
+  tr.innerHTML = `<td class="id">${e.id}</td><td class="from">${e.de}</td><td>${e.d}</td><td>${e.c}</td><td>${tags}</td>`;
+  const hl = on => svg.querySelectorAll(`.edge[data-id="${e.id}"]`).forEach(x => x.classList.toggle("hl", on));
+  tr.addEventListener("mouseenter", () => hl(true)); tr.addEventListener("mouseleave", () => hl(false));
+  tr.addEventListener("focus", () => hl(true)); tr.addEventListener("blur", () => hl(false));
+  tb.appendChild(tr);
+});
+
+/* ---------- Pipeline V1 ---------- */
+// [texte, statut] : v = vigilance, h = hypothèse, "" = neutre
+const pipe = [
+  {k:"match", name:"Match", sub:"Recommandation", s:[
+    ["Préférences déclarées à l’inscription, clics et pages vues, achats. Tendances du moment.", ""],
+    ["App ou site → API → service Match. Chiffrement du transport non documenté.", "h"],
+    ["Bases « Comptes & profils » et « Événements & achats », chez l’hébergeur. Conservation de 5 ans par défaut.", "v"],
+    ["Le modèle croise historique, préférences et tendances. Il a été ajusté sur les données des premiers clients.", "v"],
+    ["Liste de produits affichée dans l’app. L’énoncé ne dit pas si le client est informé du profilage.", "h"],
+    ["Conservation de 5 ans par défaut. Aucune purge documentée.", "v"]]},
+  {k:"cabine", name:"Cabine", sub:"Essayage virtuel", s:[
+    ["Selfie ou photo en pied importée. N’importe quelle photo est acceptée, y compris celle d’une autre personne.", "v"],
+    ["Import depuis l’app → API → service Cabine, puis copie dans le bucket photos.", ""],
+    ["Bucket photos en clair, chez un hébergeur dont une partie des services est hors UE. Image générée conservée sans durée définie.", "v"],
+    ["Le modèle génératif produit une image réaliste de la personne avec la tenue, sans filtre sur les tenues. Les photos servent aussi à entraîner le modèle.", "v"],
+    ["Image téléchargeable et partageable sur les réseaux, sans mention ni marquage « générée par IA ».", "v"],
+    ["Photos gardées 5 ans. Une image partagée échappe à tout contrôle et ne peut plus être supprimée.", "v"]]},
+  {k:"stella", name:"Stella", sub:"Styliste", s:[
+    ["Messages libres tapés par le client, avec le contexte client joint (profil, historique).", "h"],
+    ["App → API → Stella → API du fournisseur du modèle, sur Internet. Le pays de traitement est inconnu.", "v"],
+    ["Conversations conservées « pour améliorer le service », sans durée définie. Ce que garde le fournisseur est inconnu.", "v"],
+    ["Le modèle du fournisseur génère la réponse. Stella conseille, répond aux questions et pousse des produits.", ""],
+    ["Conseils et produits poussés. Stella se présente sous un prénom et un avatar humain ; aucune mention de l’IA n’est documentée.", "v"],
+    ["Aucune durée documentée. Les conversations sont probablement reversées dans le jeu d’entraînement.", "h"]]},
+  {k:"age", name:"Âge", sub:"Contrôle à l’inscription", s:[
+    ["Photo du visage prise à l’inscription, et âge déclaré par la personne.", ""],
+    ["App → API → service Âge.", ""],
+    ["Photo du visage rangée dans le même bucket que Cabine. Âge estimé enregistré dans le profil.", "h"],
+    ["Le modèle estime l’âge à partir du visage. En dessous de 15 ans, l’inscription est refusée quel que soit l’âge déclaré. Une photo retouchée suffit à le tromper.", "v"],
+    ["Refus affiché sans explication ni recours.", "v"],
+    ["Aucune durée documentée pour la photo du visage.", "v"]]},
+  {k:"pay", name:"Pay3x", sub:"Paiement fractionné", s:[
+    ["Historique d’achats, incidents de paiement, et données transmises par le prestataire de paiement.", ""],
+    ["Base interne → Pay3x. Échange avec le prestataire dans les deux sens. Moyen technique et contenu exact non documentés.", "h"],
+    ["Score et décision probablement enregistrés. Durée non documentée.", "h"],
+    ["Éligibilité décidée automatiquement par un score. Rien n’empêche un mineur d’y accéder : une fille de 14 ans l’a utilisé.", "v"],
+    ["Refus affiché sans motif.", "v"],
+    ["Aucune durée documentée.", "v"]]},
+  {k:"insight", name:"Insight", sub:"Segmentation", s:[
+    ["Aucune collecte propre : Insight réutilise les photos importées par les utilisateurs.", "v"],
+    ["Lecture du bucket photos.", "h"],
+    ["Segments enregistrés avec les caractéristiques déduites.", "v"],
+    ["Le modèle déduit des photos les signes religieux portés, l’orientation sexuelle supposée et l’origine.", "v"],
+    ["Segments marketing et campagnes ciblées. Outil de diffusion non nommé.", "h"],
+    ["Aucune durée documentée.", "v"]]}
+];
+const pb = document.getElementById("pipe");
+pipe.forEach(r => {
+  const tr = document.createElement("tr"); tr.dataset.m = r.k;
+  tr.innerHTML = `<td class="mod">${r.name}<small>${r.sub}</small></td>` + r.s.map(([t, c]) => `<td class="${c}">${t}</td>`).join("");
+  pb.appendChild(tr);
+});
+
+/* ---------- Inventaire ---------- */
+const inv = [
+  ["<span class='htxt'>Identité et compte (nom, e-mail, mot de passe) (hyp.)</span>", "Tous", "Oui", "—", "Client", "Comptes & profils", "<span class='htxt'>Non documentée</span>", "Hébergeur"],
+  ["Âge déclaré", "Âge", "Oui", "<span class='tag v'>Mineurs possibles</span>", "Client", "Comptes & profils", "<span class='htxt'>Non documentée</span>", "Hébergeur"],
+  ["Préférences déclarées", "Match", "Oui", "—", "Client", "Comptes & profils", "5 ans", "Hébergeur"],
+  ["Navigation : clics, pages vues <span class='htxt'>(+ IP, cookies : hyp.)</span>", "Match", "Oui", "—", "App / site", "Événements & achats", "5 ans", "Hébergeur"],
+  ["Historique d’achats", "Match, Pay3x", "Oui", "—", "App / site", "Événements & achats", "5 ans", "Hébergeur"],
+  ["Selfie ou photo en pied", "Cabine, Insight", "Oui", "<span class='tag v'>À qualifier : image d’un tiers, d’un mineur</span>", "Client… ou n’importe qui", "Bucket photos, en clair, hors UE", "5 ans", "Hébergeur"],
+  ["Photo du visage", "Âge, Insight", "Oui", "<span class='tag v'>À qualifier : biométrie ?</span>", "Client", "<span class='htxt'>Bucket photos (hyp.)</span>", "Non documentée", "Hébergeur"],
+  ["Âge estimé et décision d’inscription", "Âge", "Oui", "<span class='tag v'>Mineurs</span>", "Modèle Âge", "<span class='htxt'>Comptes & profils (hyp.)</span>", "Non documentée", "Hébergeur"],
+  ["Tenue choisie", "Cabine", "Oui, liée au compte", "—", "Client", "<span class='htxt'>Non précisé</span>", "Non définie", "Hébergeur"],
+  ["Image générée", "Cabine", "Oui", "<span class='tag v'>À qualifier : image réaliste d’une personne</span>", "Modèle Cabine", "Images générées", "Non définie", "Réseaux sociaux, forums"],
+  ["Messages à Stella", "Stella", "Oui", "<span class='tag v'>Texte libre : peut contenir n’importe quoi</span>", "Client", "Conversations Stella", "Non documentée", "Fournisseur GPAI"],
+  ["Incidents de paiement", "Pay3x", "Oui", "<span class='tag ok'>Donnée financière</span>", "FashMatch", "<span class='htxt'>Non précisé</span>", "Non documentée", "Prestataire de paiement"],
+  ["Données transmises par le prestataire", "Pay3x", "Oui", "<span class='tag ok'>Donnée financière</span>", "Prestataire de paiement", "<span class='htxt'>Scores Pay3x (hyp.)</span>", "Non documentée", "—"],
+  ["Score et décision Pay3x", "Pay3x", "Oui", "—", "Score Pay3x", "<span class='htxt'>Scores Pay3x (hyp.)</span>", "Non documentée", "Hébergeur"],
+  ["Religion, orientation sexuelle, origine déduites", "Insight", "Oui", "<span class='tag v'>À qualifier : catégories de l’art. 9 ?</span>", "Modèle Insight", "Segments marketing", "Non documentée", "<span class='htxt'>Canaux marketing (hyp.)</span>"],
+  ["Segments marketing", "Insight", "Oui", "<span class='tag v'>Contiennent les données ci-dessus</span>", "Modèle Insight", "Segments marketing", "Non documentée", "<span class='htxt'>Canaux marketing (hyp.)</span>"],
+  ["Jeu d’entraînement (photos, conversations)", "Cabine, Match, Stella", "Oui", "<span class='tag v'>Hérite des catégories ci-dessus</span>", "Copies des autres bases", "Jeu d’entraînement", "Non documentée", "Hébergeur"]
+];
+document.getElementById("inv").innerHTML = inv.map(r => `<tr><td class="from">${r[0]}</td>` + r.slice(1).map(c => `<td>${c}</td>`).join("") + `</tr>`).join("");
+
+/* ---------- Tiers ---------- */
+const tiers = [
+  ["Hébergeur cloud", "Toutes les données du service", "UE + certains services hors UE", "Photos stockées en clair. Accès internes non journalisés.", "Quels services sont hors UE, et dans quels pays ? Existe-t-il un contrat de sous-traitance ? Quelles garanties encadrent les transferts ?"],
+  ["Fournisseur du modèle de Stella (GPAI)", "Messages des clients et contexte joint", "Inconnue", "Stella est construite sur son API.", "Conserve-t-il les conversations ? S’en sert-il pour entraîner ses modèles ? Où traite-t-il les données ?"],
+  ["Prestataire de paiement", "Sortant : paiements et incidents de paiement. Entrant : données transmises par le prestataire.", "Inconnue", "Il fournit une partie des données du score Pay3x.", "Quelles données transmet-il exactement ? Qui calcule le score ? Qui prend la décision finale ?"],
+  ["Réseaux sociaux, forums", "Images générées par Cabine", "Hors de tout contrôle", "Le partage se fait sans mention particulière. Une image générée circule déjà sur un forum.", "Peut-on encore savoir qu’une image a été générée une fois publiée ? Comment répondre à une personne qui s’y découvre ?"],
+  ["<span class='htxt'>Canaux marketing (hyp.)</span>", "Segments et listes de clients ciblés", "Inconnue", "L’énoncé parle de campagnes ciblées, sans nommer d’outil.", "Quel outil diffuse les campagnes ? Les segments sensibles en sortent-ils ?"]
+];
+document.getElementById("tiersb").innerHTML = tiers.map(r => `<tr><td class="from">${r[0]}</td>` + r.slice(1).map(c => `<td>${c}</td>`).join("") + `</tr>`).join("");
+
+/* ---------- Transverse ---------- */
+const gaps = [
+  ["Chiffrement", "Les photos sont stockées en clair dans un bucket objet. Le chiffrement des échanges n’est pas documenté."],
+  ["Journalisation", "Les accès internes ne sont pas journalisés : on ne peut pas savoir qui a consulté ou exporté quoi."],
+  ["Gestion des accès", "L’énoncé ne décrit ni rôles ni cloisonnement pour l’équipe de six personnes. À confirmer avec le groupe."],
+  ["Supervision humaine", "Âge et Pay3x décident automatiquement. Âge refuse sans explication ni recours ; Pay3x refuse sans motif."],
+  ["Transparence", "Stella a un prénom et un avatar humains. Les images générées sont partagées sans mention particulière. Les refus n’ont pas de motif."],
+  ["Conservation", "5 ans par défaut pour Match et pour les photos. Ailleurs, aucune durée documentée. Aucune purge documentée."],
+  ["Accessibilité", "Aucun audit d’accessibilité n’a été mené sur l’app et le site."],
+  ["Gouvernance", "Pas de DPO désigné, pas de référent conformité IA."]
+];
+document.getElementById("gaps").innerHTML = gaps.map(([t, p]) => `<div class="gap"><h3>${t}</h3><p>${p}</p></div>`).join("");
+
+/* ---------- Hypothèses ---------- */
+const hyps = [
+  "Une API unique reçoit toutes les requêtes de l’app et du site, et les envoie vers les modules.",
+  "Les échanges app ↔ API passent en HTTPS, même si rien ne le documente.",
+  "Les modèles de Match, Cabine, Âge, Pay3x et Insight tournent chez l’hébergeur cloud de FashMatch. Seule Stella appelle un modèle externe.",
+  "La photo du visage du module Âge est rangée dans le même bucket que les photos de Cabine.",
+  "Insight analyse les photos en lot, sans action du client.",
+  "Stella envoie au fournisseur le message du client accompagné de son contexte (profil, historique).",
+  "Les conversations Stella sont reversées dans le jeu d’entraînement (« pour améliorer le service »).",
+  "Les campagnes d’Insight sont diffusées par un outil marketing externe.",
+  "Les données transmises par le prestataire de paiement sont stockées avec les scores Pay3x.",
+  "Les accès internes non journalisés portent sur toutes les bases.",
+  "Le compte client (nom, e-mail, mot de passe) existe et est stocké avec les préférences ; l’âge estimé y est aussi enregistré.",
+  "Pay3x repose sur un modèle d’IA et non sur de simples règles : à qualifier par les DPO dans l’inventaire AI Act (L5)."
+];
+document.getElementById("hyps").innerHTML = hyps.map((h, i) => `<li><span>H${String(i + 1).padStart(2, "0")}</span>${h}</li>`).join("");
+
+/* ---------- Filtre ---------- */
+const chips = document.querySelectorAll(".chip");
+function apply(f){
+  chips.forEach(c => c.setAttribute("aria-pressed", String(c.dataset.f === f)));
+  const keep = m => f === "all" || m.split(" ").some(x => x === "*" || x === f);
+  svg.querySelectorAll(".node, .edge").forEach(n => n.classList.toggle("dim", !keep(n.dataset.m)));
+  tb.querySelectorAll("tr").forEach(r => r.classList.toggle("off", !keep(r.dataset.m)));
+  pb.querySelectorAll("tr").forEach(r => {
+    r.classList.toggle("focus", f !== "all" && r.dataset.m === f);
+    r.classList.toggle("faded", f !== "all" && r.dataset.m !== f);
+  });
+  try { sessionStorage.setItem("fm-filter", f); } catch (e) {}
+}
+chips.forEach(c => c.addEventListener("click", () => apply(c.dataset.f)));
+let start = "all";
+try { start = sessionStorage.getItem("fm-filter") || "all"; } catch (e) {}
+apply(start);
+})();
+</script>
