@@ -94,7 +94,8 @@ Le plus gros risque est que la matrice L1 n'existe toujours pas : tout le reste 
 
 ## Mes prochaines actions
 
-- [ ] Cet après-midi : présenter la data et l'IA aux DPO, puis notre travail, y compris la partie d'Aurélien
+- [ ] Ce matin, après la présentation des DPO à 11 h : présenter la data et l'IA, puis notre travail, y compris la partie d'Aurélien
+- [ ] Pendant la journée commune avec les DPO : faire la séance matrice L1 et les validations croisées (J1-01, J1-03)
 - [ ] Envoyer la note Data/IA à Aurélien et la note de questions aux DPO
 - [ ] Cocher J1-01 « en attente de validation » dans le planning, avec le lien de l'architecture
 - [ ] Ajouter en tête de l'architecture la phrase « découpage technique = modélisation de l'équipe »
