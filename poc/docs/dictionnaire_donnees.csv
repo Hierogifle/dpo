@@ -1,0 +1,11 @@
+champ_source,champ_sortie,type,finalite,decision,commentaire_DPO
+id,product_id,entier,identifier un produit,conserver,Identifiant de produit et non identifiant utilisateur
+masterCategory,category,texte,filtrer les grandes familles,conserver,Apparel Footwear Accessories
+subCategory,subcategory,texte,filtrer les sous-familles,conserver,Catégorie commerciale
+articleType,article_type,texte,identifier le type de vêtement,conserver,Champ important pour les recommandations
+baseColour,color,texte,préférence de couleur,conserver,Couleur déclarée dans la source
+season,season,texte,pertinence saisonnière,conserver,Saison marketing et non date de validité
+usage,usage,texte,contexte d'utilisation,conserver,Nom source réel usage
+productDisplayName,product_name,texte,affichage du produit,conserver,Peut contenir une marque commerciale
+gender,,texte,public commercial ciblé,exclure,Ne pas confondre avec identité de genre utilisateur
+year,,numérique,année du référencement,exclure,Non indispensable au POC minimal

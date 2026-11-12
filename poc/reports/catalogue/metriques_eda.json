@@ -1,0 +1,97 @@
+{
+  "catalogue_rows": 41890,
+  "catalogue_columns": [
+    "product_id",
+    "category",
+    "subcategory",
+    "article_type",
+    "color",
+    "season",
+    "usage",
+    "product_name",
+    "source_dataset"
+  ],
+  "duplicates_product_id": 0,
+  "missing": {
+    "product_id": 0,
+    "category": 0,
+    "subcategory": 0,
+    "article_type": 0,
+    "color": 6,
+    "season": 21,
+    "usage": 54,
+    "product_name": 2,
+    "source_dataset": 0
+  },
+  "categories": {
+    "Apparel": 21397,
+    "Accessories": 11274,
+    "Footwear": 9219
+  },
+  "usage": {
+    "Casual": 32187,
+    "Sports": 4001,
+    "Ethnic": 3190,
+    "Formal": 2339,
+    "Smart Casual": 67,
+    "Travel": 26,
+    "Party": 26
+  },
+  "profiles": {
+    "available": true,
+    "rows": 80,
+    "columns": [
+      "user_id",
+      "preferred_styles",
+      "preferred_colors",
+      "preferred_categories",
+      "budget_max_eur",
+      "preferred_sizes",
+      "created_at",
+      "retention_until",
+      "synthetic"
+    ],
+    "missing": {
+      "user_id": 0,
+      "preferred_styles": 0,
+      "preferred_colors": 0,
+      "preferred_categories": 0,
+      "budget_max_eur": 0,
+      "preferred_sizes": 0,
+      "created_at": 0,
+      "retention_until": 0,
+      "synthetic": 0
+    },
+    "duplicate_user_ids": 0,
+    "limits": [
+      "Catégories françaises des profils non alignées sur les familles Kaggle : créer un mapping explicite avant la recommandation.",
+      "Styles synthétiques (chic, streetwear, etc.) non directement disponibles dans le champ usage Kaggle : ne pas assimiler automatiquement les vocabulaires.",
+      "Les budgets fictifs ne sont pas utilisables pour filtrer le vrai catalogue : prix absents de Kaggle.",
+      "Les tailles préférées ne sont pas utilisables pour filtrer le vrai catalogue : tailles absentes de Kaggle.",
+      "Durée fictive de 90 jours à valider avec les DPO : ce n'est pas une obligation RGPD générale."
+    ],
+    "preferred_categories": [
+      "Accessoire",
+      "Bas",
+      "Chaussures",
+      "Haut",
+      "Veste"
+    ],
+    "catalogue_categories": [
+      "Accessories",
+      "Apparel",
+      "Footwear"
+    ],
+    "unmatched_categories_without_mapping": [
+      "Accessoire",
+      "Bas",
+      "Chaussures",
+      "Haut",
+      "Veste"
+    ],
+    "retention_days": [
+      90
+    ]
+  },
+  "raw_quality_report_present": true
+}

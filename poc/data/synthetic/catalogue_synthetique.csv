@@ -1,0 +1,121 @@
+﻿product_id,category,subcategory,color,size,style,season,price_eur,material,source
+P0001,Haut,Pull,blanc,S,sport,mi-saison,174.94,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0002,Chaussures,Mocassins,rouge,S,casual,toutes saisons,35.03,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0003,Chaussures,Baskets,rouge,TU,streetwear,été,94.62,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0004,Veste,Manteau,blanc,TU,streetwear,toutes saisons,127.95,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0005,Veste,Manteau,bleu,TU,sport,hiver,17.15,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0006,Veste,Manteau,rouge,L,casual,mi-saison,197.32,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0007,Chaussures,Baskets,marron,XL,sport,mi-saison,94.81,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0008,Veste,Manteau,rouge,XL,sport,toutes saisons,131.71,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0009,Haut,T-shirt,marron,L,chic,mi-saison,195.94,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0010,Chaussures,Mocassins,rouge,TU,sport,hiver,128.44,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0011,Veste,Veste légère,rouge,L,minimaliste,été,73.23,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0012,Haut,T-shirt,bleu,TU,sport,mi-saison,179.14,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0013,Veste,Blazer,gris,TU,minimaliste,mi-saison,118.34,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0014,Chaussures,Mocassins,noir,M,streetwear,mi-saison,202.7,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0015,Chaussures,Mocassins,gris,L,chic,mi-saison,187.23,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0016,Haut,Pull,rouge,M,casual,été,167.49,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0017,Bas,Short,noir,XS,casual,mi-saison,132.77,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0018,Accessoire,Sac,beige,XS,sport,toutes saisons,168.39,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0019,Veste,Blazer,noir,M,sport,mi-saison,155.47,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0020,Accessoire,Sac,rouge,XL,chic,hiver,29.56,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0021,Bas,Pantalon,gris,XL,minimaliste,mi-saison,180.06,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0022,Bas,Short,noir,XS,minimaliste,toutes saisons,22.69,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0023,Veste,Blazer,noir,XL,minimaliste,hiver,154.02,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0024,Veste,Blazer,rouge,L,sport,été,44.01,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0025,Bas,Short,vert,L,sport,été,153.13,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0026,Accessoire,Ceinture,noir,S,chic,toutes saisons,146.83,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0027,Chaussures,Mocassins,beige,L,casual,été,146.3,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0028,Accessoire,Sac,bleu,TU,chic,mi-saison,68.74,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0029,Chaussures,Baskets,marron,M,chic,hiver,48.34,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0030,Chaussures,Bottines,gris,L,chic,hiver,120.02,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0031,Haut,Pull,blanc,S,chic,toutes saisons,210.36,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0032,Veste,Manteau,bleu,XS,streetwear,été,85.15,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0033,Accessoire,Écharpe,beige,XS,sport,hiver,127.61,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0034,Bas,Jupe,gris,TU,sport,été,33.1,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0035,Haut,Sweat,bleu,XS,casual,hiver,162.25,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0036,Haut,Pull,gris,XL,casual,hiver,205.82,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0037,Veste,Manteau,blanc,XS,minimaliste,hiver,98.22,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0038,Haut,T-shirt,beige,XS,streetwear,toutes saisons,31.52,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0039,Accessoire,Ceinture,vert,L,sport,toutes saisons,204.35,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0040,Accessoire,Sac,rouge,L,casual,hiver,191.15,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0041,Veste,Manteau,gris,M,casual,mi-saison,194.71,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0042,Veste,Manteau,blanc,M,minimaliste,hiver,133.81,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0043,Accessoire,Ceinture,beige,XL,casual,toutes saisons,45.72,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0044,Haut,T-shirt,bleu,XL,streetwear,hiver,17.99,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0045,Bas,Jupe,marron,L,minimaliste,été,173.53,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0046,Bas,Pantalon,bleu,XL,casual,mi-saison,196.94,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0047,Bas,Jean,noir,M,sport,mi-saison,98.92,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0048,Bas,Jean,bleu,XL,casual,hiver,82.87,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0049,Veste,Blazer,noir,TU,chic,mi-saison,24.13,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0050,Accessoire,Sac,marron,TU,streetwear,été,128.81,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0051,Veste,Blazer,vert,M,minimaliste,mi-saison,126.15,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0052,Accessoire,Ceinture,beige,S,minimaliste,été,112.85,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0053,Veste,Veste légère,marron,XS,chic,toutes saisons,74.2,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0054,Veste,Blazer,blanc,XS,sport,été,188.76,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0055,Accessoire,Ceinture,noir,L,minimaliste,été,212.75,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0056,Haut,Chemise,marron,M,sport,hiver,76.57,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0057,Accessoire,Écharpe,beige,S,streetwear,hiver,124.56,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0058,Bas,Short,beige,TU,casual,mi-saison,207.36,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0059,Accessoire,Sac,noir,S,streetwear,été,46.1,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0060,Accessoire,Écharpe,noir,M,casual,hiver,74.95,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0061,Bas,Pantalon,bleu,XS,streetwear,mi-saison,34.34,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0062,Haut,Sweat,gris,XL,streetwear,toutes saisons,84.34,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0063,Haut,Chemise,vert,TU,minimaliste,hiver,29.17,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0064,Chaussures,Bottines,gris,TU,chic,été,79.6,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0065,Accessoire,Ceinture,vert,TU,minimaliste,mi-saison,77.25,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0066,Chaussures,Baskets,vert,M,minimaliste,mi-saison,56.28,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0067,Accessoire,Écharpe,bleu,L,streetwear,hiver,185.81,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0068,Veste,Manteau,gris,S,sport,hiver,60.73,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0069,Accessoire,Sac,gris,M,sport,mi-saison,143.7,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0070,Haut,Pull,marron,M,casual,mi-saison,200.98,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0071,Accessoire,Écharpe,beige,L,streetwear,hiver,24.49,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0072,Bas,Jean,gris,XL,streetwear,été,81.47,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0073,Accessoire,Ceinture,rouge,L,streetwear,toutes saisons,19.8,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0074,Haut,Pull,vert,XS,chic,mi-saison,119.11,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0075,Veste,Blazer,beige,XL,casual,toutes saisons,44.41,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0076,Chaussures,Baskets,bleu,TU,streetwear,toutes saisons,130.07,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0077,Accessoire,Écharpe,bleu,XS,casual,hiver,207.32,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0078,Bas,Pantalon,rouge,TU,streetwear,hiver,84.26,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0079,Chaussures,Bottines,rouge,M,streetwear,toutes saisons,145.87,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0080,Haut,Sweat,vert,M,minimaliste,été,88.45,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0081,Chaussures,Bottines,beige,XL,casual,mi-saison,191.49,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0082,Accessoire,Écharpe,gris,L,sport,toutes saisons,189.43,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0083,Accessoire,Ceinture,rouge,M,streetwear,hiver,49.68,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0084,Bas,Jupe,marron,TU,casual,été,18.01,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0085,Bas,Short,bleu,XL,chic,hiver,173.36,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0086,Chaussures,Baskets,vert,M,minimaliste,été,43.61,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0087,Bas,Pantalon,bleu,TU,sport,toutes saisons,178.79,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0088,Veste,Manteau,bleu,S,streetwear,hiver,38.62,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0089,Bas,Jean,bleu,TU,chic,mi-saison,145.37,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0090,Accessoire,Sac,gris,S,sport,hiver,196.71,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0091,Chaussures,Mocassins,marron,S,streetwear,été,160.68,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0092,Chaussures,Baskets,noir,XS,streetwear,hiver,80.38,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0093,Bas,Pantalon,blanc,L,minimaliste,été,185.29,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0094,Bas,Pantalon,rouge,S,streetwear,été,123.46,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0095,Chaussures,Bottines,vert,TU,chic,hiver,142.9,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0096,Accessoire,Écharpe,rouge,XS,chic,été,36.1,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0097,Veste,Veste légère,bleu,XS,chic,été,145.35,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0098,Chaussures,Baskets,bleu,TU,streetwear,hiver,165.74,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0099,Haut,Sweat,rouge,M,streetwear,mi-saison,216.82,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0100,Bas,Pantalon,vert,L,minimaliste,toutes saisons,205.59,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0101,Accessoire,Ceinture,gris,TU,casual,mi-saison,109.46,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0102,Accessoire,Écharpe,blanc,M,streetwear,toutes saisons,28.75,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0103,Haut,Sweat,blanc,L,sport,mi-saison,139.58,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0104,Haut,Chemise,vert,S,casual,toutes saisons,93.5,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0105,Accessoire,Ceinture,noir,XS,casual,toutes saisons,164.35,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0106,Bas,Jupe,rouge,S,streetwear,mi-saison,155.61,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0107,Bas,Jupe,marron,XS,minimaliste,été,135.9,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0108,Bas,Jean,rouge,XL,minimaliste,mi-saison,122.22,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0109,Bas,Short,noir,XL,minimaliste,été,73.29,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0110,Veste,Manteau,marron,TU,sport,toutes saisons,85.52,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0111,Bas,Jean,vert,S,sport,toutes saisons,127.37,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0112,Chaussures,Baskets,blanc,L,minimaliste,toutes saisons,62.82,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0113,Veste,Blazer,gris,M,casual,hiver,46.87,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0114,Bas,Jean,rouge,XL,casual,hiver,211.66,cuir synthétique,SYNTHETIC_DEMO_NOT_PUBLIC
+P0115,Chaussures,Mocassins,noir,S,minimaliste,toutes saisons,72.59,lin,SYNTHETIC_DEMO_NOT_PUBLIC
+P0116,Haut,Pull,beige,XS,streetwear,toutes saisons,110.05,laine,SYNTHETIC_DEMO_NOT_PUBLIC
+P0117,Haut,Chemise,beige,L,casual,hiver,59.49,polyester,SYNTHETIC_DEMO_NOT_PUBLIC
+P0118,Chaussures,Baskets,beige,XS,casual,mi-saison,92.25,coton,SYNTHETIC_DEMO_NOT_PUBLIC
+P0119,Chaussures,Mocassins,bleu,S,chic,été,128.31,denim,SYNTHETIC_DEMO_NOT_PUBLIC
+P0120,Veste,Manteau,gris,TU,chic,mi-saison,31.22,laine,SYNTHETIC_DEMO_NOT_PUBLIC

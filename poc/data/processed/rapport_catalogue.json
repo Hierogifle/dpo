@@ -1,0 +1,208 @@
+{
+  "source": "https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-small",
+  "source_rows": 44424,
+  "source_rows_definition": "Enregistrements acceptés par le parseur Pandas avant transformations",
+  "output_rows": 41890,
+  "eligible_rows_before_limit": 41890,
+  "limit": null,
+  "parsing_audit": {
+    "status": "ok",
+    "record_count_excluding_header": 44446,
+    "expected_field_count": 10,
+    "malformed_record_count": 22,
+    "malformed_rows": [
+      {
+        "line_end": 6044,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 6569,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 7399,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 7939,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 9026,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 10264,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 10427,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 10905,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 11373,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 11945,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 14112,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 14532,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 15076,
+        "expected_fields": 10,
+        "found_fields": 12
+      },
+      {
+        "line_end": 29906,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 31625,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 33020,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 35748,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 35962,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 37770,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 38105,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 38275,
+        "expected_fields": 10,
+        "found_fields": 11
+      },
+      {
+        "line_end": 38404,
+        "expected_fields": 10,
+        "found_fields": 12
+      }
+    ],
+    "note": "Audit CSV indépendant; la stratégie de lecture Pandas est distincte.",
+    "pandas_rejected_bad_line_count": 22,
+    "pandas_rejected_field_counts": [
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      12,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      12
+    ]
+  },
+  "transformation_exclusions": {
+    "missing_required_fields": 0,
+    "non_integer_product_id": 0,
+    "duplicate_product_ids": 0,
+    "non_target_categories": 2534,
+    "limited_for_sample": 0
+  },
+  "duplicate_product_ids_before_dedup": 0,
+  "missing_values_in_source": {
+    "id": 0,
+    "gender": 0,
+    "masterCategory": 0,
+    "subCategory": 0,
+    "articleType": 0,
+    "baseColour": 15,
+    "season": 21,
+    "year": 1,
+    "usage": 317,
+    "productDisplayName": 7
+  },
+  "missing_values_in_output": {
+    "product_id": 0,
+    "category": 0,
+    "subcategory": 0,
+    "article_type": 0,
+    "color": 6,
+    "season": 21,
+    "usage": 54,
+    "product_name": 2,
+    "source_dataset": 0
+  },
+  "categories": {
+    "Apparel": 21397,
+    "Accessories": 11274,
+    "Footwear": 9219
+  },
+  "usage": {
+    "Casual": 32187,
+    "Sports": 4001,
+    "Ethnic": 3190,
+    "Formal": 2339,
+    "Smart Casual": 67,
+    "Travel": 26,
+    "Party": 26
+  },
+  "excluded_fields": [
+    "gender",
+    "year"
+  ],
+  "notes": [
+    "Aucune donnée client ni photo de personne réelle.",
+    "Prix et tailles absents du catalogue public utilisé.",
+    "Les lignes mal formées sont exclues, pas réparées.",
+    "La licence des images et la version précise du dataset doivent être revérifiées avant diffusion.",
+    "Les champs gender et year sont exclus par choix de périmètre, pas parce qu'ils sont nécessairement illicites."
+  ]
+}
