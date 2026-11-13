@@ -1,0 +1,543 @@
+<title>Architecture FashMatch V2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Même gabarit que la V1 : schéma pleine largeur, tableaux dans leur propre cadre.
+   Bleu = mesure V2 · orange = point encore à trancher · pointillés = hypothèse ou proposition. */
+:root{
+  --bg:#F3F5F8; --surface:#FFFFFF; --canvas:#FBFCFD; --ink:#18212E; --muted:#5D6878;
+  --line:#CDD4DE; --edge:#465264; --accent:#1F55E0; --accent-soft:#E6EDFD;
+  --vig:#C2410C; --vig-soft:#FDEDE4; --store:#EEF2F7; --tier:#F2EFF8; --hyp:#7A8494;
+  --f-body:"Public Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E131A; --surface:#151C26; --canvas:#121821; --ink:#E5EAF1; --muted:#97A2B2;
+  --line:#2C3746; --edge:#AEB8C6; --accent:#7EA2FF; --accent-soft:#1B2740;
+  --vig:#FF8B52; --vig-soft:#33211A; --store:#1A2330; --tier:#211D2E; --hyp:#8D97A6; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E131A; --surface:#151C26; --canvas:#121821; --ink:#E5EAF1; --muted:#97A2B2;
+  --line:#2C3746; --edge:#AEB8C6; --accent:#7EA2FF; --accent-soft:#1B2740;
+  --vig:#FF8B52; --vig-soft:#33211A; --store:#1A2330; --tier:#211D2E; --hyp:#8D97A6; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:32px 64px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:clamp(26px,4vw,38px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lede{max-width:76ch;color:var(--muted);font-size:16px}
+header{display:flex;flex-direction:column;gap:12px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:8px;font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.stats b{color:var(--accent);font-weight:500;font-variant-numeric:tabular-nums}
+section{display:flex;flex-direction:column;gap:16px}
+.sec-head{display:flex;flex-direction:column;gap:6px;max-width:82ch}
+.sec-head p{color:var(--muted)}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 20px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px}
+.legend div{display:flex;align-items:center;gap:10px;font-size:13.5px;min-width:0}
+.legend svg{flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 13.5px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.chip:focus-visible,.flows tr:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.diagram{background:var(--canvas);border:1px solid var(--line);border-radius:8px;overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:1000px;height:auto;color:var(--ink)}
+figcaption{font-size:13.5px;color:var(--muted);max-width:92ch}
+svg .box{fill:var(--surface);stroke:var(--edge);stroke-width:1.2}
+svg .box.store{fill:var(--store)}
+svg .box.tier{fill:var(--tier)}
+svg .box.ok{stroke:var(--accent);stroke-width:2}
+svg .box.vig{stroke:var(--vig);stroke-width:2}
+svg .box.hyp{stroke-dasharray:5 4}
+svg .box.ghost{fill:none;stroke:var(--accent);stroke-dasharray:6 5;stroke-width:1.6}
+svg .cloud{fill:none;stroke:var(--accent);stroke-width:1.4;stroke-dasharray:8 5}
+svg .t-title{fill:var(--ink);font:600 13.5px var(--f-body)}
+svg .t-sub{fill:var(--muted);font:400 11.5px var(--f-body)}
+svg .t-sub.ok{fill:var(--accent);font-weight:600}
+svg .t-sub.vig{fill:var(--vig);font-weight:600}
+svg .t-ia{fill:var(--accent);font:500 10.5px var(--f-mono)}
+svg .t-cloud{fill:var(--accent);font:600 12px var(--f-body)}
+svg .wire{fill:none;stroke:var(--edge);stroke-width:1.4}
+svg .wire.ok{stroke:var(--accent);stroke-width:1.8}
+svg .wire.hyp{stroke-dasharray:5 4}
+svg .tick{stroke:var(--accent);stroke-width:1.8}
+svg .lbl{fill:var(--ink);font:500 11.5px var(--f-body);paint-order:stroke;stroke:var(--canvas);stroke-width:4px;stroke-linejoin:round}
+svg .lbl.ok{fill:var(--accent);font-weight:600}
+svg .mk{fill:var(--edge)} svg .mk.ok{fill:var(--accent)}
+svg .node,svg .edge{transition:opacity .2s}
+svg .dim{opacity:.12}
+svg .edge.hl .wire{stroke-width:3.2}
+@media (prefers-reduced-motion:reduce){svg .node,svg .edge{transition:none}}
+.tbl{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font:600 11.5px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--canvas)}
+tr:last-child td{border-bottom:none}
+td.id{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
+td.from{font-weight:500}
+td.src{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.flows table{min-width:1100px}
+.flows tr.off{display:none}
+.flows tbody tr:hover td{background:var(--accent-soft)}
+.tag{display:inline-block;font:500 11px var(--f-mono);padding:1px 7px;border-radius:4px;margin:1px 4px 1px 0;white-space:nowrap}
+.tag.ok{background:var(--accent-soft);color:var(--accent)}
+.tag.v{background:var(--vig-soft);color:var(--vig)}
+.tag.h{border:1px dashed var(--hyp);color:var(--hyp)}
+.htxt{color:var(--hyp);font-style:italic}
+.pipe table{min-width:1240px;table-layout:fixed}
+.pipe th:first-child,.pipe td:first-child{width:120px}
+.pipe td{font-size:12.5px;line-height:1.45}
+.pipe td.mod{font-weight:700;font-size:15px}
+.pipe td.mod small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.pipe .v1{display:block;color:var(--vig);margin-bottom:6px;padding-left:8px;border-left:2px solid var(--vig)}
+.pipe .v2{display:block;color:var(--ink);padding-left:8px;border-left:2px solid var(--accent)}
+.pipe tr.retired td{background:var(--vig-soft)}
+.pipe tr.focus td.mod{color:var(--accent)}
+.pipe tr.faded{opacity:.35}
+.ret table{min-width:900px}
+.trace table{min-width:1000px}
+.roles table{min-width:820px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.card h3{font-size:15px}
+.card p{font-size:13.5px;color:var(--muted)}
+.card.v{border-left-color:var(--vig)}
+.list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:92ch}
+.list li{font-size:14px}
+.list li span{font-family:var(--f-mono);font-size:12px;color:var(--hyp);margin-right:6px}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="eyebrow">Croisée des Arts 2026 · Volet Data/IA · Architecture cible</span>
+  <h1>FashMatch V2 : l’architecture conforme</h1>
+  <p class="lede">La V2 rend le même service que la V1 (recommandation personnalisée, essayage virtuel, achat fluide) avec une conformité construite dans l’architecture plutôt qu’ajoutée à la fin. Elle applique les décisions prises avec les DPO le 13 novembre 2026.</p>
+  <p class="lede">Chaque mesure renvoie à sa source. Ce qui reste une proposition de l’équipe Data/IA est marqué <span class="tag h">proposition</span> ; ce que les DPO doivent encore trancher est marqué <span class="tag v">à trancher</span>.</p>
+  <div class="stats">
+    <span><b>5</b> modules (Insight retiré)</span>
+    <span><b>6</b> espaces de stockage</span>
+    <span><b>5</b> tiers, tous dans l’UE</span>
+    <span><b>0</b> photo conservée</span>
+    <span><b>0</b> conversation conservée</span>
+    <span><b>100 %</b> des accès journalisés</span>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head">
+    <span class="eyebrow">Comment lire</span>
+    <h2>Les mêmes symboles que la V1</h2>
+    <p>Le schéma se lit de haut en bas, comme la V1 : personnes, accès, passerelle, modules, stockages, tiers. Les flèches portent la donnée transportée.</p>
+  </div>
+  <div class="legend">
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="10" fill="var(--surface)" stroke="var(--edge)"/></svg>Personne</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="3" fill="var(--surface)" stroke="var(--edge)"/></svg>Traitement</div>
+    <div><svg width="46" height="28" viewBox="0 0 46 28" aria-hidden="true"><path d="M1 6 A22 5 0 0 1 45 6 V22 A22 5 0 0 1 1 22 Z" fill="var(--store)" stroke="var(--edge)"/><path d="M1 6 A22 5 0 0 0 45 6" fill="none" stroke="var(--edge)"/></svg>Stockage</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="1" fill="var(--tier)" stroke="var(--edge)"/></svg>Tiers externe (UE)</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="3" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/></svg>Bleu : mesure de protection</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="3" fill="none" stroke="var(--accent)" stroke-dasharray="6 5"/></svg>Rien n’est stocké ici</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="3" fill="none" stroke="var(--hyp)" stroke-dasharray="5 4"/></svg>Proposition à valider</div>
+    <div><svg width="46" height="24" viewBox="0 0 46 24" aria-hidden="true"><rect x="1" y="2" width="44" height="20" rx="3" fill="var(--surface)" stroke="var(--vig)" stroke-width="2"/></svg>Orange : à trancher</div>
+  </div>
+</section>
+
+<section id="schema">
+  <div class="sec-head">
+    <span class="eyebrow">Vue d’ensemble</span>
+    <h2>L’architecture technique de la V2</h2>
+    <p>Choisis un module pour n’afficher que son chemin. Le tableau des flux suit le même filtre, avec pour chaque flux la mesure appliquée et sa source.</p>
+  </div>
+  <div class="chips" role="group" aria-label="Filtrer par module">
+    <button class="chip" id="f-all" data-f="all" aria-pressed="true">Tout voir</button>
+    <button class="chip" id="f-compte" data-f="compte" aria-pressed="false">Comptes et âge</button>
+    <button class="chip" id="f-match" data-f="match" aria-pressed="false">Match</button>
+    <button class="chip" id="f-cabine" data-f="cabine" aria-pressed="false">Cabine</button>
+    <button class="chip" id="f-stella" data-f="stella" aria-pressed="false">Stella</button>
+    <button class="chip" id="f-pay" data-f="pay" aria-pressed="false">Paiement</button>
+    <button class="chip" id="f-com" data-f="com" aria-pressed="false">Communication</button>
+  </div>
+  <figure>
+    <div class="diagram">
+      <svg id="arch" viewBox="0 0 1200 790" role="img" aria-label="Architecture FashMatch V2 : le client passe par l’app ou le site vers une passerelle API qui vérifie les consentements et journalise chaque accès. Cinq modules (comptes et âge, Match, Cabine, Stella, paiement, communication) s’appuient sur cinq stockages chez un hébergeur souverain dans l’UE. Aucune photo ni conversation n’est conservée. Cinq tiers, tous dans l’UE : tiers de confiance pour l’âge et le vivant, réseaux sociaux, fournisseur du modèle de langage, prestataire de paiement fractionné agréé et outil d’envoi d’e-mails."></svg>
+    </div>
+    <figcaption>Tout ce qui est dans le cadre bleu tourne chez un hébergeur souverain dans l’UE. Chaque accès, interne ou externe, passe par la passerelle et est journalisé (ligne bleue à gauche). Les deux cadres en pointillés bleus marquent ce que la V2 ne stocke plus : les conversations de Stella, et les photos de Cabine traitées en mémoire puis supprimées.</figcaption>
+  </figure>
+  <div class="tbl flows">
+    <table>
+      <thead><tr><th>N°</th><th>De → vers</th><th>Donnée transportée</th><th>Mesure V2</th><th>Source</th></tr></thead>
+      <tbody id="flows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="pipeline">
+  <div class="sec-head">
+    <span class="eyebrow">Pipeline avant / après</span>
+    <h2>Le trajet de la donnée, V1 puis V2</h2>
+    <p>Les mêmes six étapes que la V1. Dans chaque case, la ligne orange rappelle le problème V1, la ligne bleue décrit la mesure V2.</p>
+  </div>
+  <div class="tbl pipe">
+    <table>
+      <thead><tr><th>Module</th><th>1 · Collecte</th><th>2 · Transport</th><th>3 · Stockage</th><th>4 · Traitement</th><th>5 · Sortie</th><th>6 · Suppression</th></tr></thead>
+      <tbody id="pipe"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="durees">
+  <div class="sec-head">
+    <span class="eyebrow">Conservation et purge</span>
+    <h2>Chaque donnée a une date de fin, appliquée automatiquement</h2>
+    <p>Durées validées par les DPO. Une tâche planifiée supprime chaque nuit ce qui a dépassé sa durée, et inscrit la purge dans les journaux.</p>
+  </div>
+  <div class="tbl ret">
+    <table>
+      <thead><tr><th>Donnée</th><th>Durée</th><th>Point de départ</th><th>Mécanisme</th><th>Source</th></tr></thead>
+      <tbody id="ret"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="tracabilite">
+  <div class="sec-head">
+    <span class="eyebrow">Matrice de traçabilité</span>
+    <h2>Exigence → mesure → source</h2>
+    <p>Chaque exigence est vérifiable par un auditeur. Cette matrice alimente le cahier des charges ; les DPO valident la colonne « Source ».</p>
+  </div>
+  <div class="tbl trace">
+    <table>
+      <thead><tr><th>N°</th><th>Exigence</th><th>Mesure technique</th><th>Source</th><th>Module</th></tr></thead>
+      <tbody id="trace"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="transverse">
+  <div class="sec-head">
+    <span class="eyebrow">Couche transverse</span>
+    <h2>Ce qui manquait partout en V1, et ce que la V2 met en place</h2>
+  </div>
+  <div class="cards" id="cards"></div>
+</section>
+
+<section id="roles">
+  <div class="sec-head">
+    <span class="eyebrow">AI Act · proposition pour le L5</span>
+    <h2>Le rôle de FashMatch pour chaque système d’IA</h2>
+    <p>Proposition de l’équipe Data/IA, à confronter au livrable L5. Le rôle découle des choix d’architecture ci-dessus.</p>
+  </div>
+  <div class="tbl roles">
+    <table>
+      <thead><tr><th>Système</th><th>Choix V2</th><th>Rôle proposé</th><th>Obligations principales</th></tr></thead>
+      <tbody id="rolesb"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="ouvert">
+  <div class="sec-head">
+    <span class="eyebrow">À trancher</span>
+    <h2>Ce qui reste ouvert</h2>
+    <p>Ces points n’empêchent pas la V2, mais ils changeront un bloc ou une flèche selon la réponse.</p>
+  </div>
+  <ol class="list" id="open"></ol>
+</section>
+
+<footer>Sources : énoncé « À la croisée des Arts », architecture V1, réponses des DPO (questions-pour-les-dpo.md, échange du 13 novembre 2026, doc « Focus sur STELLA », registre L4 en cours). Références juridiques à valider par les DPO.</footer>
+</div>
+
+<script>
+(function(){
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("arch");
+function el(tag, attrs, parent){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function txt(parent, x, y, s, cls, anchor){ const t = el("text", {x, y, class: cls, "text-anchor": anchor || "middle"}, parent); t.textContent = s; return t; }
+
+const defs = el("defs", {}, svg);
+[["ah","mk"],["aho","mk ok"]].forEach(([id, cls]) => {
+  const m = el("marker", {id, viewBox:"0 0 10 10", refX:"9", refY:"5", markerWidth:"9", markerHeight:"9", orient:"auto-start-reverse", markerUnits:"userSpaceOnUse"}, defs);
+  el("path", {d:"M0 0 L10 5 L0 10 Z", class: cls}, m);
+});
+
+const bg = el("g", {}, svg);
+el("rect", {x:6, y:228, width:1186, height:444, class:"cloud"}, bg);
+txt(bg, 1186, 220, "Cloud souverain · UE", "t-cloud", "end");
+
+const nodes = [
+  {id:"P_equipe", t:"actor", x:30,  y:30, w:180, h:50, title:"Équipe interne", sub:"rôles + authentification forte", m:"*"},
+  {id:"P_client", t:"actor", x:400, y:30, w:220, h:50, title:"Client", sub:"15 ans et plus, âge vérifié", m:"*"},
+  {id:"P_support",t:"actor", x:700, y:30, w:200, h:50, title:"Support et modération", sub:"revue humaine", m:"compte cabine", ok:true},
+  {id:"A_console",t:"proc",  x:30,  y:150, w:180, h:56, title:"Console d’administration", sub:"SSO + MFA", m:"*", ok:true},
+  {id:"A_mobile", t:"proc",  x:360, y:150, w:140, h:56, title:"App mobile", sub:"accessible RGAA", m:"*"},
+  {id:"A_web",    t:"proc",  x:520, y:150, w:140, h:56, title:"Site web", sub:"bandeau traceurs", m:"*"},
+  {id:"GW",       t:"api",   x:40,  y:250, w:940, h:60, title:"Passerelle API", sub:"authentification · vérification des consentements · mention IA · filtrage des entrées · journalisation", m:"*", ok:true},
+  {id:"D_cons",   t:"store", x:1000,y:240, w:160, h:76, title:"Consentements", sub:"preuves horodatées", m:"* com match stella", ok:true},
+  {id:"S_compte", t:"proc", x:40,  y:370, w:175, h:76, title:"Comptes et âge", sub:"inscription", ia:"IA · tiers de confiance", m:"compte"},
+  {id:"S_match",  t:"proc", x:229, y:370, w:175, h:76, title:"Match", sub:"si consentement", ia:"IA · modèle maison", m:"match"},
+  {id:"S_cab",    t:"proc", x:418, y:370, w:175, h:76, title:"Cabine", sub:"prise de vue en direct", ia:"IA · génératif hébergé UE", m:"cabine", hyp:true},
+  {id:"S_ste",    t:"proc", x:607, y:370, w:175, h:76, title:"Stella", sub:"« vous parlez à une IA »", ia:"IA · LLM européen", m:"stella"},
+  {id:"S_pay",    t:"proc", x:796, y:370, w:175, h:76, title:"Paiement", sub:"redirection", ia:"aucune IA chez FashMatch", m:"pay"},
+  {id:"S_com",    t:"proc", x:985, y:370, w:175, h:76, title:"Communication", sub:"newsletter, alertes", ia:"consentement dédié", m:"com"},
+  {id:"D_id",  t:"store", x:40,  y:530, w:170, h:76, title:"Coffre\nidentités", sub:"chiffré · accès restreint", m:"* compte com", ok:true},
+  {id:"D_prof",t:"store", x:226, y:530, w:170, h:76, title:"Profils\n& événements", sub:"pseudonymisés · 25 mois", m:"match", ok:true},
+  {id:"D_gen", t:"store", x:412, y:530, w:170, h:76, title:"Journal\nde génération", sub:"sans image · 6 mois", m:"cabine", ok:true},
+  {id:"D_conv",t:"ghost", x:598, y:530, w:170, h:76, title:"Conversations", sub:"aucune conservation", m:"stella"},
+  {id:"D_cmd", t:"store", x:784, y:530, w:170, h:76, title:"Commandes\n& factures", sub:"factures 10 ans", m:"pay", ok:true},
+  {id:"D_log", t:"store", x:970, y:530, w:170, h:76, title:"Journaux\nd’accès", sub:"6 mois à 1 an", m:"*", ok:true},
+  {id:"T_conf", t:"tier", x:200, y:710, w:220, h:56, title:"Tiers de confiance UE", sub:"âge ≥ 15 ans · test du vivant", m:"compte cabine", hyp:true},
+  {id:"T_soc",  t:"tier", x:500, y:710, w:180, h:56, title:"Réseaux sociaux", sub:"image marquée IA", m:"cabine"},
+  {id:"T_llm",  t:"tier", x:700, y:710, w:160, h:56, title:"Fournisseur LLM UE", sub:"sans conservation", m:"stella", hyp:true},
+  {id:"T_psp",  t:"tier", x:880, y:710, w:160, h:56, title:"Paiement fractionné", sub:"prestataire agréé", m:"pay", vig:true},
+  {id:"T_mail", t:"tier", x:1050,y:710, w:140, h:56, title:"Outil d’envoi UE", sub:"e-mails consentis", m:"com", hyp:true}
+];
+
+// de, d (donnée), c (mesure), s (source)
+const edges = [
+  {id:"F01", m:"*", p:[[510,80],[510,116],[430,116],[430,148]], p2:[[510,116],[590,116],[590,148]], l:["saisies, clics, photo en direct, messages"], lx:500, ly:108, a:"end",
+   de:"Client → App / Site", d:"Identité, préférences, clics, photo prise en direct, messages", c:"Collecte minimale, information à l’inscription, bandeau traceurs", s:"RGPD art. 5.1.c, 13 · LIL art. 82"},
+  {id:"F02", m:"*", both:true, ok:true, p:[[430,206],[430,248]], p2:[[590,206],[590,248]], l:["HTTPS · TLS 1.3"], lx:510, ly:244,
+   de:"App / Site ↔ Passerelle", d:"Requêtes, jeton de session", c:"Chiffrement en transit, jeton de session à durée courte", s:"RGPD art. 32"},
+  {id:"F03", m:"*", ok:true, p:[[120,80],[120,148]], l:["SSO + MFA"], lx:128, ly:118, a:"start",
+   de:"Équipe interne → Console", d:"Identifiants de l’équipe", c:"Authentification forte, comptes nominatifs", s:"RGPD art. 32 · CNIL, guide sécurité"},
+  {id:"F04", m:"*", ok:true, p:[[120,206],[120,248]], l:["accès par rôle"], lx:128, ly:244, a:"start",
+   de:"Console → Passerelle", d:"Actions d’administration", c:"Moindre privilège : plus aucun accès direct aux bases", s:"RGPD art. 25, 32"},
+  {id:"F05", m:"compte cabine", ok:true, both:true, p:[[800,80],[800,248]], l:["contestations, signalements"], lx:808, ly:120, a:"start",
+   de:"Support ↔ Passerelle", d:"Contestations d’âge, signalements d’images", c:"Revue humaine, réponse au client", s:"RGPD art. 22 · CNIL, contrôle de l’âge"},
+  {id:"F06", m:"* com match stella", ok:true, both:true, p:[[980,280],[998,280]], l:[], lx:0, ly:0,
+   de:"Passerelle ↔ Consentements", d:"État des consentements du client", c:"Chaque traitement vérifie le consentement avant de s’exécuter", s:"RGPD art. 6.1.a, 7"},
+  {id:"F07", m:"*", ok:true, p:[[40,290],[24,290],[24,622],[1055,622],[1055,608]], l:["chaque accès et chaque traitement est journalisé"], lx:17, ly:440, rot:true,
+   de:"Passerelle → Journaux d’accès", d:"Qui, quoi, quand, sur quelle donnée", c:"Journal centralisé, protégé en écriture", s:"RGPD art. 32 · CNIL, journalisation"},
+  {id:"F08", m:"compte", both:true, p:[[127,312],[127,368]], l:["↓ inscription, connexion","↑ compte créé"], lx:135, ly:330, a:"start",
+   de:"Passerelle ↔ Comptes et âge", d:"Données d’inscription", c:"Âge déclaré + estimation par un tiers", s:"RGPD art. 8 · LIL art. 45"},
+  {id:"F09", m:"compte", ok:true, both:true, p:[[125,448],[125,528]], l:["identité","chiffrée"], lx:131, ly:494, a:"start",
+   de:"Comptes ↔ Coffre identités", d:"Nom, e-mail, mot de passe haché, âge vérifié (oui / non)", c:"Chiffrement au repos, accès restreint, séparé des données de comportement", s:"RGPD art. 4.5, 25, 32"},
+  {id:"F10", m:"compte", ok:true, both:true, p:[[205,448],[205,470],[218,470],[218,708]], l:["photo du visage → ≥ 15 ans ?"], lx:224, ly:682, a:"start",
+   de:"Comptes ↔ Tiers de confiance", d:"Photo du visage ↓ / réponse oui ou non ↑", c:"Double anonymat, photo supprimée après estimation, recours possible", s:"CNIL, contrôle de l’âge · RGPD art. 22, 28"},
+  {id:"F11", m:"match", both:true, p:[[316,312],[316,368]], l:["↓ clics (si consentement)","↑ recos perso ou tendances"], lx:324, ly:330, a:"start",
+   de:"Passerelle ↔ Match", d:"Clics ↓ / recommandations ↑", c:"Sans consentement : recommandations non personnalisées", s:"RGPD art. 6.1.a, 21"},
+  {id:"F12", m:"match", ok:true, both:true, p:[[311,448],[311,528]], l:["préférences","+ événements"], lx:317, ly:494, a:"start",
+   de:"Match ↔ Profils & événements", d:"Préférences déclarées, navigation, achats, rattachés à un code", c:"Pseudonymisation, catégories sensibles (religieux, grossesse) exclues du profilage", s:"RGPD art. 4.5, 9, 25"},
+  {id:"F13", m:"cabine", both:true, p:[[505,312],[505,368]], l:["↓ photo prise en direct","↑ image marquée IA"], lx:513, ly:330, a:"start",
+   de:"Passerelle ↔ Cabine", d:"Photo en direct + tenue + fond ↓ / image générée ↑", c:"Pas d’import depuis la galerie, tenues et fonds en liste fermée", s:"RGPD art. 5.1.c, 25"},
+  {id:"F14", m:"cabine", ok:true, both:true, p:[[430,448],[430,470],[404,470],[404,708]], l:["test du vivant"], lx:410, ly:682, a:"start",
+   de:"Cabine ↔ Tiers de confiance", d:"Flux caméra ↓ / « personne réelle » oui ou non ↑", c:"Empêche l’import de la photo d’un tiers", s:"RGPD art. 5.1.a, 32"},
+  {id:"F15", m:"cabine", ok:true, p:[[497,448],[497,528]], l:["sans image","réf. C2PA"], lx:503, ly:494, a:"start",
+   de:"Cabine → Journal de génération", d:"Code client, date, identifiant de provenance (aucune image)", c:"Traçabilité en cas de fuite, sur intérêt légitime de sécurité", s:"RGPD art. 6.1.f, 32 · DPO, 6 mois"},
+  {id:"F16", m:"cabine", ok:true, p:[[590,448],[590,708]], l:["image marquée IA"], lx:596, ly:682, a:"start",
+   de:"Cabine → Réseaux sociaux", d:"Image générée, partagée par le client", c:"Mention visible « Générée par IA » + FashMatch, marquage C2PA lisible par machine", s:"AI Act art. 50.2, 50.4"},
+  {id:"F17", m:"stella", both:true, p:[[694,312],[694,368]], l:["↓ message (mention IA)","↑ réponse filtrée"], lx:702, ly:330, a:"start",
+   de:"Passerelle ↔ Stella", d:"Messages ↓ / réponses ↑", c:"Mention IA avant le premier message, filtrage des entrées et des sorties", s:"AI Act art. 50.1 · OWASP LLM01"},
+  {id:"F18", m:"stella", ok:true, both:true, p:[[776,448],[776,708]], l:["messages, sans conservation"], lx:782, ly:682, a:"start",
+   de:"Stella ↔ Fournisseur LLM UE", d:"Message (données identifiantes masquées) ↓ / réponse ↑", c:"Fournisseur dans l’UE, clause de non-conservation et de non-entraînement", s:"RGPD art. 28, 44 et suivants"},
+  {id:"F19", m:"pay", both:true, p:[[883,312],[883,368]], l:["↓ panier","↑ redirection"], lx:891, ly:330, a:"start",
+   de:"Passerelle ↔ Paiement", d:"Panier ↓ / redirection vers le prestataire ↑", c:"FashMatch ne calcule plus aucun score", s:"Décision DPO du 13 nov. 2026"},
+  {id:"F20", m:"pay", ok:true, both:true, p:[[962,448],[962,708]], l:["montant, réf. commande"], lx:968, ly:682, a:"start",
+   de:"Paiement ↔ Prestataire agréé", d:"Montant et référence ↓ / accord ou refus ↑", c:"Le prestataire gère score, majorité, revue humaine et mentions légales ; aucun numéro de carte chez FashMatch", s:"RGPD art. 22 · PCI DSS"},
+  {id:"F21", m:"pay", ok:true, both:true, p:[[869,448],[869,528]], l:["commande,","facture"], lx:875, ly:494, a:"start",
+   de:"Paiement ↔ Commandes & factures", d:"Commande, statut, facture", c:"Factures en archivage à accès restreint", s:"Code de commerce L123-22"},
+  {id:"F22", m:"com", ok:true, p:[[1072,318],[1072,368]], l:["↓ abonnés","consentants"], lx:1080, ly:334, a:"start",
+   de:"Consentements → Communication", d:"Liste des clients ayant consenti", c:"Aucun envoi sans consentement dédié", s:"RGPD art. 6.1.a · CPCE art. L34-5"},
+  {id:"F23", m:"com", ok:true, p:[[1150,448],[1150,708]], l:["e-mails consentis"], lx:1144, ly:662, a:"end",
+   de:"Communication → Outil d’envoi UE", d:"E-mail et prénom des abonnés", c:"Sous-traitant dans l’UE, lien de désinscription dans chaque envoi", s:"RGPD art. 21, 28"}
+];
+const notes = [{x:694, y:478, s:"rien n’est stocké", m:"stella"}];
+
+const gEdges = el("g", {}, svg), gNodes = el("g", {}, svg), gLabels = el("g", {}, svg);
+function poly(g, pts, e){
+  const a = {points: pts.map(p => p.join(",")).join(" "), class: "wire" + (e.ok ? " ok" : "") + (e.hyp ? " hyp" : "")};
+  a["marker-end"] = e.ok ? "url(#aho)" : "url(#ah)";
+  if (e.both) a["marker-start"] = e.ok ? "url(#aho)" : "url(#ah)";
+  el("polyline", a, g);
+}
+edges.forEach(e => {
+  const g = el("g", {class:"edge", "data-m": e.m, "data-id": e.id}, gEdges);
+  poly(g, e.p, e); if (e.p2) poly(g, e.p2, e);
+  if (e.id === "F07") [125,311,497,869].forEach(x => el("line", {x1:x, y1:608, x2:x, y2:622, class:"tick"}, g));
+  const lg = el("g", {class:"edge", "data-m": e.m, "data-id": e.id}, gLabels);
+  e.l.forEach((s, i) => { const t = txt(lg, e.lx, e.ly + i * 14, s, "lbl" + (e.ok ? " ok" : ""), e.a || "middle"); if (e.rot) t.setAttribute("transform", `rotate(-90 ${e.lx} ${e.ly})`); });
+});
+notes.forEach(n => { const g = el("g", {class:"node", "data-m": n.m}, gLabels); txt(g, n.x, n.y, n.s, "lbl ok"); });
+
+nodes.forEach(n => {
+  const g = el("g", {class:"node", "data-m": n.m, "data-id": n.id}, gNodes);
+  const cls = "box" + (n.t === "store" ? " store" : "") + (n.t === "tier" ? " tier" : "") + (n.t === "ghost" ? " ghost" : "") + (n.ok ? " ok" : "") + (n.vig ? " vig" : "") + (n.hyp ? " hyp" : "");
+  const cx = n.x + n.w / 2;
+  if (n.t === "store" || n.t === "ghost"){
+    const rx = n.w / 2, ry = 7;
+    el("path", {d:`M${n.x} ${n.y+ry} A${rx} ${ry} 0 0 1 ${n.x+n.w} ${n.y+ry} V${n.y+n.h-ry} A${rx} ${ry} 0 0 1 ${n.x} ${n.y+n.h-ry} Z`, class: cls}, g);
+    el("path", {d:`M${n.x} ${n.y+ry} A${rx} ${ry} 0 0 0 ${n.x+n.w} ${n.y+ry}`, class: cls, style:"fill:none"}, g);
+    const lines = n.title.split("\n");
+    lines.forEach((s, i) => txt(g, cx, n.y + (lines.length > 1 ? 30 : 38) + i * 15, s, "t-title"));
+    txt(g, cx, n.y + 64, n.sub, "t-sub" + (n.ok || n.t === "ghost" ? " ok" : ""));
+  } else {
+    const rx = n.t === "actor" ? n.h / 2 : (n.t === "tier" ? 2 : 6);
+    el("rect", {x:n.x, y:n.y, width:n.w, height:n.h, rx, class: cls}, g);
+    if (n.ia){
+      txt(g, cx, n.y + 22, n.title, "t-title");
+      txt(g, cx, n.y + 40, n.sub, "t-sub");
+      txt(g, cx, n.y + 60, n.ia, "t-ia");
+    } else {
+      txt(g, cx, n.y + (n.sub ? n.h / 2 - 3 : n.h / 2 + 5), n.title, "t-title");
+      if (n.sub) txt(g, cx, n.y + n.h / 2 + 14, n.sub, "t-sub" + (n.vig ? " vig" : (n.ok && n.t === "api" ? " ok" : "")));
+    }
+  }
+});
+
+const tb = document.getElementById("flows");
+edges.forEach(e => {
+  const tr = document.createElement("tr"); tr.dataset.m = e.m; tr.tabIndex = 0;
+  tr.innerHTML = `<td class="id">${e.id}</td><td class="from">${e.de}</td><td>${e.d}</td><td>${e.c}</td><td class="src">${e.s}</td>`;
+  const hl = on => svg.querySelectorAll(`.edge[data-id="${e.id}"]`).forEach(x => x.classList.toggle("hl", on));
+  tr.addEventListener("mouseenter", () => hl(true)); tr.addEventListener("mouseleave", () => hl(false));
+  tr.addEventListener("focus", () => hl(true)); tr.addEventListener("blur", () => hl(false));
+  tb.appendChild(tr);
+});
+
+/* Pipeline avant / après : [V1, V2] par étape */
+const pipe = [
+  {k:"match", name:"Match", sub:"Recommandation", s:[
+    ["Préférences, clics et achats collectés sans choix explicite.", "Bandeau traceurs ; profilage seulement après consentement, sinon tendances."],
+    ["Transport non documenté.", "HTTPS (TLS 1.3) jusqu’à la passerelle, qui vérifie le consentement."],
+    ["5 ans, identité et comportement mélangés.", "Profils pseudonymisés, séparés du coffre identités, chiffrés, hébergés dans l’UE."],
+    ["Modèle ajusté sur les données clients sans cadre.", "Modèle maison ; catégories sensibles (religieux, grossesse) exclues du profilage."],
+    ["Aucune explication au client.", "« Pourquoi ce produit ? » affiché ; opposition et retrait en un clic."],
+    ["Aucune purge.", "Purge automatique 25 mois après collecte ; traceurs 13 mois."]]},
+  {k:"cabine", name:"Cabine", sub:"Essayage virtuel", s:[
+    ["N’importe quelle photo, même celle d’un tiers.", "Prise de vue en direct uniquement + test du vivant."],
+    ["Copie vers un bucket.", "Traitement en mémoire, jamais écrit sur disque."],
+    ["Photos en clair, en partie hors UE, 5 ans.", "Aucune image stockée ; seul un journal sans image (6 mois)."],
+    ["Image réaliste sans contrôle des tenues ; photos réutilisées pour l’entraînement.", "Tenues en liste fermée (pas de sous-vêtements), fonds en liste fermée, filtre de sortie, aucun entraînement."],
+    ["Partage sans aucune mention.", "Mention visible « Générée par IA » + FashMatch, marquage C2PA."],
+    ["Conservation 5 ans.", "Photo et image supprimées dès la livraison au client."]]},
+  {k:"stella", name:"Stella", sub:"Styliste", s:[
+    ["Messages libres, contexte client joint.", "Mention « vous parlez à une IA » avant le premier message."],
+    ["Envoyés à un fournisseur, pays inconnu.", "Fournisseur LLM dans l’UE ; données identifiantes masquées avant envoi."],
+    ["Conversations conservées sans durée.", "Aucune conservation : la conversation disparaît à la fin de la session."],
+    ["Prénom et avatar humains, produits poussés.", "Filtrage des entrées et sorties (injection de prompt) ; personnalisation seulement avec consentement."],
+    ["Aucune mention de l’IA.", "Réponses signalées comme générées par IA."],
+    ["Conversations réutilisées pour l’entraînement.", "Clause de non-conservation et de non-entraînement chez le fournisseur."]]},
+  {k:"compte", name:"Âge", sub:"Contrôle à l’inscription", s:[
+    ["Photo du visage stockée.", "Photo envoyée au tiers de confiance, jamais stockée chez FashMatch."],
+    ["Traitement interne.", "Double anonymat : le tiers ne sait pas pour quel service."],
+    ["Durée non documentée.", "FashMatch ne garde que « âge vérifié : oui / non »."],
+    ["Refus automatique, contournable.", "Estimation + test du vivant ; contestation vers une méthode alternative."],
+    ["Refus sans explication ni recours.", "Motif affiché, contestation possible, revue humaine."],
+    ["Aucune durée.", "Photo supprimée tout de suite par le tiers."]]},
+  {k:"pay", name:"Pay3x", sub:"Paiement fractionné", s:[
+    ["Historique, incidents et données du prestataire.", "FashMatch ne transmet que le montant et la référence de commande."],
+    ["Échange non documenté.", "Redirection vers le prestataire agréé."],
+    ["Score et décision chez FashMatch.", "Commandes et factures seulement ; aucun numéro de carte."],
+    ["Score automatique, mineurs non filtrés.", "Le prestataire gère score, majorité (18 ans), revue humaine."],
+    ["Refus sans motif.", "Refus motivé et contestable, géré par le prestataire."],
+    ["Aucune durée.", "Factures 10 ans, historique d’achats 5 ans."]]},
+  {k:"insight", name:"Insight", sub:"Segmentation", retired:true, s:[
+    ["Réutilisait les photos.", "Module retiré."],
+    ["Lecture du bucket.", "Module retiré."],
+    ["Segments sensibles stockés.", "Plus aucun segment sensible."],
+    ["Déduisait religion, orientation, origine.", "Interdit : traitement de données sensibles."],
+    ["Campagnes ciblées.", "Remplacé par la communication sur consentement."],
+    ["Aucune durée.", "Données existantes à purger."]]}
+];
+const pb = document.getElementById("pipe");
+pipe.forEach(r => {
+  const tr = document.createElement("tr"); tr.dataset.m = r.k; if (r.retired) tr.className = "retired";
+  tr.innerHTML = `<td class="mod">${r.name}<small>${r.sub}${r.retired ? " · retiré" : ""}</small></td>` + r.s.map(([a, b]) => `<td><span class="v1">${a}</span><span class="v2">${b}</span></td>`).join("");
+  pb.appendChild(tr);
+});
+
+const ret = [
+  ["Données de recommandation (navigation, achats pour Match)", "25 mois", "Collecte de la donnée", "Purge nocturne", "CNIL, lignes directrices traceurs"],
+  ["Traceurs (cookies)", "13 mois", "Dépôt du traceur", "Expiration du traceur", "CNIL, lignes directrices traceurs"],
+  ["Compte client inactif", "3 ans", "Dernière activité", "Purge nocturne, e-mail d’avertissement avant", "CNIL, relation client"],
+  ["Historique d’achats", "5 ans", "Fin de la relation commerciale", "Archivage puis purge", "Code civil art. 2224"],
+  ["Factures", "10 ans", "Clôture de l’exercice", "Archivage à accès restreint", "Code de commerce L123-22"],
+  ["Photo Cabine et image générée", "Aucune", "—", "Traitement en mémoire, supprimées après livraison", "Décision DPO"],
+  ["Journal de génération Cabine", "6 mois", "Date de génération", "Purge nocturne", "Décision DPO"],
+  ["Photo du visage (âge)", "Aucune", "—", "Supprimée par le tiers après estimation", "CNIL, contrôle de l’âge"],
+  ["Conversations Stella", "Aucune", "—", "Supprimées en fin de session", "Décision équipe, 13 nov. 2026"],
+  ["Journaux d’accès", "6 mois à 1 an", "Date de l’événement", "Rotation automatique", "CNIL, journalisation"],
+  ["Preuves de consentement", "Durée du consentement + 5 ans", "Retrait ou fin du traitement", "Purge nocturne", "Code civil art. 2224 (prescription)"]
+];
+document.getElementById("ret").innerHTML = ret.map(r => `<tr><td class="from">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td class="src">${r[4]}</td></tr>`).join("");
+
+const trace = [
+  ["EX-01", "Aucun profilage sans consentement", "La passerelle bloque Match et la personnalisation de Stella sans consentement enregistré", "RGPD art. 6.1.a, 7", "Match, Stella"],
+  ["EX-02", "Le client peut retirer son consentement aussi simplement qu’il l’a donné", "Bouton de retrait dans le compte ; arrêt immédiat du profilage", "RGPD art. 7.3, 21", "Match, Communication"],
+  ["EX-03", "Les catégories sensibles ne servent pas au profilage", "Liste d’exclusion de catégories de produits avant l’entraînement et la recommandation", "RGPD art. 9", "Match"],
+  ["EX-04", "L’identité est séparée du comportement", "Coffre identités chiffré ; profils rattachés à un code ; table de correspondance à accès restreint", "RGPD art. 4.5, 25", "Comptes, Match"],
+  ["EX-05", "Aucune photo n’est conservée", "Traitement en mémoire ; contrôle automatique qu’aucun fichier image n’est écrit", "RGPD art. 5.1.c, 5.1.e", "Cabine, Âge"],
+  ["EX-06", "Seule une personne réelle devant la caméra peut générer son image", "Prise de vue en direct + test du vivant par le tiers de confiance", "RGPD art. 5.1.a, 32", "Cabine"],
+  ["EX-07", "Les images générées sont identifiables comme telles", "Mention visible « Générée par IA » + marquage C2PA", "AI Act art. 50.2, 50.4", "Cabine"],
+  ["EX-08", "Les tenues générées restent dans un cadre défini", "Tenues et fonds en liste fermée, filtre de contenu en sortie", "Décision DPO", "Cabine"],
+  ["EX-09", "Une image qui fuit peut être rattachée à sa génération", "Journal de génération (code client, date, identifiant C2PA), 6 mois", "RGPD art. 6.1.f, 32", "Cabine"],
+  ["EX-10", "Le client sait qu’il parle à une IA", "Écran d’information avant le premier message de Stella", "AI Act art. 50.1", "Stella"],
+  ["EX-11", "Les conversations ne sont pas conservées", "Pas de stockage côté FashMatch ; clause de non-conservation chez le fournisseur", "RGPD art. 5.1.e, 28", "Stella"],
+  ["EX-12", "Stella résiste aux détournements", "Filtrage des entrées et des sorties, consignes cloisonnées", "OWASP Top 10 LLM (LLM01)", "Stella"],
+  ["EX-13", "L’âge est contrôlé sans que FashMatch voie le visage", "Tiers de confiance en double anonymat ; seule la réponse oui / non revient", "CNIL, contrôle de l’âge", "Âge"],
+  ["EX-14", "Un refus d’inscription peut être contesté", "Méthode alternative et revue humaine par le support", "RGPD art. 22.3", "Âge"],
+  ["EX-15", "FashMatch ne prend aucune décision de crédit", "Paiement fractionné entièrement délégué à un prestataire agréé", "RGPD art. 22 · AI Act annexe III", "Paiement"],
+  ["EX-16", "Aucune donnée ne quitte l’UE", "Hébergeur souverain, tiers sélectionnés dans l’UE, contrats de sous-traitance", "RGPD chapitre V, art. 28", "Tous"],
+  ["EX-17", "Chaque accès est tracé", "Journal centralisé protégé en écriture, conservé 6 mois à 1 an", "RGPD art. 32 · CNIL", "Tous"],
+  ["EX-18", "Chaque donnée est supprimée à l’échéance", "Tâche de purge nocturne, inscrite au journal", "RGPD art. 5.1.e", "Tous"],
+  ["EX-19", "L’application est utilisable par les personnes en situation de handicap", "Audit et mise en conformité RGAA de l’app et du site", "Directive (UE) 2019/882 · RGAA", "Tous"]
+];
+document.getElementById("trace").innerHTML = trace.map(r => `<tr><td class="id">${r[0]}</td><td class="from">${r[1]}</td><td>${r[2]}</td><td class="src">${r[3]}</td><td>${r[4]}</td></tr>`).join("");
+
+const cards = [
+  ["Chiffrement", "Au repos (clés gérées par l’hébergeur souverain) et en transit (TLS 1.3 partout)."],
+  ["Gestion des accès", "Comptes nominatifs, rôles, authentification forte. Plus aucun accès direct aux bases."],
+  ["Journalisation", "Tous les accès et traitements passent par la passerelle et sont journalisés, 6 mois à 1 an."],
+  ["Pseudonymisation", "Identité dans un coffre à part ; le reste des données ne connaît qu’un code client."],
+  ["Purge automatique", "Une tâche nocturne applique les durées validées par les DPO et laisse une trace."],
+  ["Supervision humaine", "Le support traite les contestations d’âge et les signalements d’images."],
+  ["Transparence", "Mention IA pour Stella et Cabine, marquage C2PA, « pourquoi ce produit ? » pour Match."],
+  ["Localisation", "Hébergeur souverain dans l’UE ; tous les tiers retenus sont dans l’UE."],
+  ["Accessibilité", "Audit RGAA de l’app et du site, corrections suivies dans la feuille de route."],
+  ["Gestion de crise", "Signalement → identifiant C2PA → journal → compte suspendu ; notification à la CNIL sous 72 h si violation."]
+];
+document.getElementById("cards").innerHTML = cards.map(([t, p]) => `<div class="card"><h3>${t}</h3><p>${p}</p></div>`).join("");
+
+const roles = [
+  ["Match", "Modèle de recommandation développé par FashMatch", "<span class='tag h'>Fournisseur</span>", "Pas de haut risque ; transparence et qualité des données"],
+  ["Cabine", "Modèle génératif open source hébergé sur le cloud souverain", "<span class='tag h'>Fournisseur du système</span>", "Marquage lisible par machine (art. 50.2) ; mention des hypertrucages (art. 50.4)"],
+  ["Stella", "Modèle d’un fournisseur européen, sans entraînement par FashMatch", "<span class='tag h'>Déployeur</span>", "Informer qu’il s’agit d’une IA (art. 50.1)"],
+  ["Âge et test du vivant", "Service d’un tiers de confiance", "<span class='tag h'>Déployeur</span>", "Information des personnes ; contrôle du sous-traitant"],
+  ["Paiement fractionné", "Délégué à un prestataire agréé", "<span class='tag h'>Hors périmètre</span>", "Obligations portées par le prestataire (haut risque, annexe III)"],
+  ["Insight", "Retiré", "—", "—"]
+];
+document.getElementById("rolesb").innerHTML = roles.map(r => `<tr><td class="from">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
+
+const open = [
+  "<span>DPO</span>Les mineurs de 15 à 17 ans ont-ils accès à la génération d’images d’eux-mêmes dans Cabine ?",
+  "<span>DPO</span>Quelle méthode alternative proposer quand un client conteste l’estimation de son âge (pièce d’identité via le tiers, autre) ?",
+  "<span>DPO</span>Le registre L4 doit suivre la V2 : Pay3x délégué, Stella sans conservation, nouveaux traitements (comptes, commandes, communication, consentements).",
+  "<span>Équipe</span>Choix du prestataire de paiement fractionné agréé (pistes : Alma, Oney, Floa, à comparer).",
+  "<span>Équipe</span>Choix de l’hébergeur souverain (pistes : OVHcloud, Scaleway, Outscale ; qualification SecNumCloud à vérifier).",
+  "<span>Équipe</span>Choix du fournisseur LLM (piste : Mistral AI) et vérification de la clause de non-conservation.",
+  "<span>L5</span>Confirmer les rôles AI Act proposés ci-dessus avec le livrable d’Enzo.",
+  "<span>2027</span>Option de Mélanie pour Stella (historique supprimable, amélioration du modèle avec droit d’opposition) : à étudier pour la feuille de route."
+];
+document.getElementById("open").innerHTML = open.map(o => `<li>${o}</li>`).join("");
+
+const chips = document.querySelectorAll(".chip");
+function apply(f){
+  chips.forEach(c => c.setAttribute("aria-pressed", String(c.dataset.f === f)));
+  const keep = m => f === "all" || m.split(" ").some(x => x === "*" || x === f);
+  svg.querySelectorAll(".node, .edge").forEach(n => n.classList.toggle("dim", !keep(n.dataset.m)));
+  tb.querySelectorAll("tr").forEach(r => r.classList.toggle("off", !keep(r.dataset.m)));
+  pb.querySelectorAll("tr").forEach(r => { r.classList.toggle("focus", f !== "all" && r.dataset.m === f); r.classList.toggle("faded", f !== "all" && r.dataset.m !== f); });
+}
+chips.forEach(c => c.addEventListener("click", () => apply(c.dataset.f)));
+apply("all");
+})();
+</script>
