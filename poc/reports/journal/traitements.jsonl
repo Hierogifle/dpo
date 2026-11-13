@@ -1,0 +1,7 @@
+{"timestamp_utc": "2026-11-13T10:10:58.138911+00:00", "event": "generation", "status": "success", "counts": {}}
+{"timestamp_utc": "2026-11-13T10:10:59.469208+00:00", "event": "generation", "status": "success", "counts": {}}
+{"timestamp_utc": "2026-11-13T10:10:59.698473+00:00", "event": "pseudonymisation", "status": "success", "counts": {}}
+{"timestamp_utc": "2026-11-13T10:11:03.905256+00:00", "event": "controle_qualite", "status": "success", "counts": {}}
+{"timestamp_utc": "2026-11-13T10:11:05.115445+00:00", "event": "controle_qualite", "status": "success", "counts": {"checked_rows": 80, "issues": 0}}
+{"timestamp_utc": "2026-11-13T10:12:03.711064+00:00", "event": "purge", "status": "dry_run", "counts": {"input_rows": 80, "output_rows": 0, "removed_rows": 80}}
+{"timestamp_utc": "2026-11-13T10:15:01.351482+00:00", "event": "purge", "status": "dry_run", "counts": {"input_rows": 80, "output_rows": 80, "removed_rows": 0}}

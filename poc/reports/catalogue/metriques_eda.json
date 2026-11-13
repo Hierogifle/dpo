@@ -42,53 +42,37 @@
     "rows": 80,
     "columns": [
       "user_id",
-      "preferred_styles",
-      "preferred_colors",
       "preferred_categories",
-      "budget_max_eur",
-      "preferred_sizes",
+      "preferred_colors",
+      "preferred_usages",
       "created_at",
       "retention_until",
       "synthetic"
     ],
     "missing": {
       "user_id": 0,
-      "preferred_styles": 0,
-      "preferred_colors": 0,
       "preferred_categories": 0,
-      "budget_max_eur": 0,
-      "preferred_sizes": 0,
+      "preferred_colors": 0,
+      "preferred_usages": 0,
       "created_at": 0,
       "retention_until": 0,
       "synthetic": 0
     },
     "duplicate_user_ids": 0,
     "limits": [
-      "Catégories françaises des profils non alignées sur les familles Kaggle : créer un mapping explicite avant la recommandation.",
-      "Styles synthétiques (chic, streetwear, etc.) non directement disponibles dans le champ usage Kaggle : ne pas assimiler automatiquement les vocabulaires.",
-      "Les budgets fictifs ne sont pas utilisables pour filtrer le vrai catalogue : prix absents de Kaggle.",
-      "Les tailles préférées ne sont pas utilisables pour filtrer le vrai catalogue : tailles absentes de Kaggle.",
       "Durée fictive de 90 jours à valider avec les DPO : ce n'est pas une obligation RGPD générale."
     ],
     "preferred_categories": [
-      "Accessoire",
-      "Bas",
-      "Chaussures",
-      "Haut",
-      "Veste"
+      "Accessories",
+      "Apparel",
+      "Footwear"
     ],
     "catalogue_categories": [
       "Accessories",
       "Apparel",
       "Footwear"
     ],
-    "unmatched_categories_without_mapping": [
-      "Accessoire",
-      "Bas",
-      "Chaussures",
-      "Haut",
-      "Veste"
-    ],
+    "unmatched_categories_without_mapping": [],
     "retention_days": [
       90
     ]

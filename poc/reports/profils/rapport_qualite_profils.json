@@ -1,0 +1,33 @@
+{
+  "status": "OK",
+  "profile_rows": 80,
+  "catalogue_rows": 41890,
+  "duplicate_user_ids": 0,
+  "missing_values": {
+    "user_id": 0,
+    "preferred_categories": 0,
+    "preferred_colors": 0,
+    "preferred_usages": 0,
+    "created_at": 0,
+    "retention_until": 0,
+    "synthetic": 0
+  },
+  "forbidden_fields_present": [],
+  "unknown_preference_values": {
+    "preferred_categories": [],
+    "preferred_colors": [],
+    "preferred_usages": []
+  },
+  "invalid_dates": 0,
+  "retention_days": [
+    90
+  ],
+  "expired_as_of_today": 0,
+  "issues": [],
+  "limitations": [
+    "Le contrôle des vocabulaires ne prouve pas la qualité des recommandations.",
+    "Les profils sont intégralement fictifs : ce test ne démontre pas une conformité RGPD en production.",
+    "La durée de conservation est illustrative, à arbitrer avec les DPO.",
+    "L'absence de noms dans le CSV ne rend pas nécessairement des données réelles anonymes."
+  ]
+}
