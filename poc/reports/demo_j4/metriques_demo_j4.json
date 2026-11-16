@@ -1,0 +1,68 @@
+{
+  "scope": "J4-02 – bilan de démonstration du POC (données synthétiques)",
+  "catalogue": {
+    "products": 41890,
+    "source_rows_parsed": 44424,
+    "retention_rate_pct": 94.3,
+    "categories": {
+      "Apparel": 21397,
+      "Accessories": 11274,
+      "Footwear": 9219
+    },
+    "usages": {
+      "Casual": 32187,
+      "Sports": 4001,
+      "Ethnic": 3190,
+      "Formal": 2339,
+      "Smart Casual": 67,
+      "Travel": 26,
+      "Party": 26
+    },
+    "missing_by_field": {
+      "product_id": 0,
+      "category": 0,
+      "subcategory": 0,
+      "article_type": 0,
+      "color": 6,
+      "season": 21,
+      "usage": 54,
+      "product_name": 2,
+      "source_dataset": 0
+    },
+    "total_missing_cells": 83,
+    "duplicate_product_ids": 0,
+    "csv_checked": true
+  },
+  "profiles": {
+    "count": 80,
+    "status": "OK",
+    "issues_detected": 0,
+    "issues": [],
+    "duplicate_user_ids": 0,
+    "invalid_dates": 0,
+    "retention_days_tested": [
+      90
+    ],
+    "unknown_preference_values": {
+      "preferred_categories": [],
+      "preferred_colors": [],
+      "preferred_usages": []
+    },
+    "forbidden_fields_present": [],
+    "csv_checked": true
+  },
+  "j3": {
+    "automated_tests_last_observed": "5 réussis (exécution rapportée par l'équipe ; relancer pytest en démonstration)",
+    "purge_demo": "simulation uniquement : 0 au 2026-09-01 et 80 au 2027-02-01 (à reproduire)",
+    "logging": "journal d'opérations techniques, pas journal des accès applicatifs"
+  },
+  "warnings": [
+    "Les statistiques sont issues des rapports présents localement : les relancer après toute modification du pipeline.",
+    "Les lignes CSV mal formées rejetées avant import ne sont pas nécessairement comptées dans source_rows_parsed.",
+    "83 cellules manquantes ne signifient pas 83 produits distincts.",
+    "La qualité des recommandations, l'absence de biais et la conformité RGPD en production ne sont pas démontrées.",
+    "Pseudonymisation ≠ anonymisation ; noms et correspondances restent hors dépôt.",
+    "Les 90 jours sont fictifs et ne constituent pas une durée légale validée.",
+    "Aucune photographie ou conversation réelle n'est traitée par ce POC."
+  ]
+}
