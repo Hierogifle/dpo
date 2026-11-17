@@ -113,6 +113,8 @@ td.src{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
 .list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:92ch}
 .list li{font-size:14px}
 .list li span{font-family:var(--f-mono);font-size:12px;color:var(--hyp);margin-right:6px}
+.list li{line-height:1.5}
+.list li em.src{display:block;font-style:normal;font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-top:2px}
 footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
 </style>
 
@@ -247,13 +249,13 @@ footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padd
 <section id="ouvert">
   <div class="sec-head">
     <span class="eyebrow">À trancher</span>
-    <h2>Ce qui reste ouvert</h2>
-    <p>Ces points n’empêchent pas la V2, mais ils changeront un bloc ou une flèche selon la réponse.</p>
+    <h2>Ce qui reste ouvert, et ce qu’on propose</h2>
+    <p>Propositions issues de la recherche juridique du 14 novembre 2026 (détail et sources dans notes/propositions-points-ouverts-v2.md). Les DPO valident les références avant la soutenance.</p>
   </div>
   <ol class="list" id="open"></ol>
 </section>
 
-<footer>Sources : énoncé « À la croisée des Arts », architecture V1, réponses des DPO (questions-pour-les-dpo.md, échange du 13 novembre 2026, doc « Focus sur STELLA », registre L4 en cours). Références juridiques à valider par les DPO.</footer>
+<footer>Sources : énoncé « À la croisée des Arts », architecture V1, réponses des DPO (questions-pour-les-dpo.md, échange du 13 novembre 2026, doc « Focus sur STELLA », registre L4 en cours). Recherche juridique du 14 novembre 2026 (notes/propositions-points-ouverts-v2.md). Références juridiques à valider par les DPO.</footer>
 </div>
 
 <script>
@@ -294,10 +296,10 @@ const nodes = [
   {id:"D_conv",t:"ghost", x:598, y:530, w:170, h:76, title:"Conversations", sub:"aucune conservation", m:"stella"},
   {id:"D_cmd", t:"store", x:784, y:530, w:170, h:76, title:"Commandes\n& factures", sub:"factures 10 ans", m:"pay", ok:true},
   {id:"D_log", t:"store", x:970, y:530, w:170, h:76, title:"Journaux\nd’accès", sub:"6 mois à 1 an", m:"*", ok:true},
-  {id:"T_conf", t:"tier", x:200, y:710, w:220, h:56, title:"Tiers de confiance UE", sub:"âge ≥ 15 ans · test du vivant", m:"compte cabine", hyp:true},
+  {id:"T_conf", t:"tier", x:200, y:710, w:220, h:56, title:"Tiers de confiance UE", sub:"3 méthodes d’âge · test du vivant", m:"compte cabine", hyp:true},
   {id:"T_soc",  t:"tier", x:500, y:710, w:180, h:56, title:"Réseaux sociaux", sub:"image marquée IA", m:"cabine"},
-  {id:"T_llm",  t:"tier", x:700, y:710, w:160, h:56, title:"Fournisseur LLM UE", sub:"sans conservation", m:"stella", hyp:true},
-  {id:"T_psp",  t:"tier", x:880, y:710, w:160, h:56, title:"Paiement fractionné", sub:"prestataire agréé", m:"pay", vig:true},
+  {id:"T_llm",  t:"tier", x:700, y:710, w:160, h:56, title:"Modèle Mistral (UE)", sub:"conservation zéro", m:"stella", hyp:true},
+  {id:"T_psp",  t:"tier", x:880, y:710, w:160, h:56, title:"Paiement fractionné", sub:"prêteur agréé", m:"pay", vig:true},
   {id:"T_mail", t:"tier", x:1050,y:710, w:140, h:56, title:"Outil d’envoi UE", sub:"e-mails consentis", m:"com", hyp:true}
 ];
 
@@ -338,11 +340,11 @@ const edges = [
   {id:"F17", m:"stella", both:true, p:[[694,312],[694,368]], l:["↓ message (mention IA)","↑ réponse filtrée"], lx:702, ly:330, a:"start",
    de:"Passerelle ↔ Stella", d:"Messages ↓ / réponses ↑", c:"Mention IA avant le premier message, filtrage des entrées et des sorties", s:"AI Act art. 50.1 · OWASP LLM01"},
   {id:"F18", m:"stella", ok:true, both:true, p:[[776,448],[776,708]], l:["messages, sans conservation"], lx:782, ly:682, a:"start",
-   de:"Stella ↔ Fournisseur LLM UE", d:"Message (données identifiantes masquées) ↓ / réponse ↑", c:"Fournisseur dans l’UE, clause de non-conservation et de non-entraînement", s:"RGPD art. 28, 44 et suivants"},
+   de:"Stella ↔ Modèle Mistral (UE)", d:"Message (données identifiantes masquées) ↓ / réponse ↑", c:"Modèle Mistral servi par l’hébergeur (proposition), conservation zéro et non-entraînement écrits au contrat ; l’API Mistral standard garde 30 jours", s:"RGPD art. 28, 44 et suivants"},
   {id:"F19", m:"pay", both:true, p:[[883,312],[883,368]], l:["↓ panier","↑ redirection"], lx:891, ly:330, a:"start",
    de:"Passerelle ↔ Paiement", d:"Panier ↓ / redirection vers le prestataire ↑", c:"FashMatch ne calcule plus aucun score", s:"Décision DPO du 13 nov. 2026"},
   {id:"F20", m:"pay", ok:true, both:true, p:[[962,448],[962,708]], l:["montant, réf. commande"], lx:968, ly:682, a:"start",
-   de:"Paiement ↔ Prestataire agréé", d:"Montant et référence ↓ / accord ou refus ↑", c:"Le prestataire gère score, majorité, revue humaine et mentions légales ; aucun numéro de carte chez FashMatch", s:"RGPD art. 22 · PCI DSS"},
+   de:"Paiement ↔ Prestataire agréé", d:"Montant et référence ↓ / accord ou refus ↑", c:"Le prêteur, responsable de traitement distinct, gère solvabilité, majorité, revue humaine et mentions légales ; aucun numéro de carte chez FashMatch", s:"RGPD art. 22 · directive (UE) 2023/2225 art. 18 · PCI DSS"},
   {id:"F21", m:"pay", ok:true, both:true, p:[[869,448],[869,528]], l:["commande,","facture"], lx:875, ly:494, a:"start",
    de:"Paiement ↔ Commandes & factures", d:"Commande, statut, facture", c:"Factures en archivage à accès restreint", s:"Code de commerce L123-22"},
   {id:"F22", m:"com", ok:true, p:[[1072,318],[1072,368]], l:["↓ abonnés","consentants"], lx:1080, ly:334, a:"start",
@@ -484,12 +486,14 @@ const trace = [
   ["EX-11", "Les conversations ne sont pas conservées", "Pas de stockage côté FashMatch ; clause de non-conservation chez le fournisseur", "RGPD art. 5.1.e, 28", "Stella"],
   ["EX-12", "Stella résiste aux détournements", "Filtrage des entrées et des sorties, consignes cloisonnées", "OWASP Top 10 LLM (LLM01)", "Stella"],
   ["EX-13", "L’âge est contrôlé sans que FashMatch voie le visage", "Tiers de confiance en double anonymat ; seule la réponse oui / non revient", "CNIL, contrôle de l’âge", "Âge"],
-  ["EX-14", "Un refus d’inscription peut être contesté", "Méthode alternative et revue humaine par le support", "RGPD art. 22.3", "Âge"],
-  ["EX-15", "FashMatch ne prend aucune décision de crédit", "Paiement fractionné entièrement délégué à un prestataire agréé", "RGPD art. 22 · AI Act annexe III", "Paiement"],
+  ["EX-14", "Un refus d’inscription peut être contesté", "Trois méthodes au choix (preuve en double anonymat, estimation, pièce d’identité) et revue humaine par le support", "RGPD art. 22.3 · CEPD déclaration 1/2025 · lignes directrices DSA art. 28", "Âge"],
+  ["EX-15", "FashMatch ne prend aucune décision de crédit", "Paiement fractionné entièrement délégué à un prêteur agréé", "RGPD art. 22 · AI Act annexe III", "Paiement"],
   ["EX-16", "Aucune donnée ne quitte l’UE", "Hébergeur souverain, tiers sélectionnés dans l’UE, contrats de sous-traitance", "RGPD chapitre V, art. 28", "Tous"],
   ["EX-17", "Chaque accès est tracé", "Journal centralisé protégé en écriture, conservé 6 mois à 1 an", "RGPD art. 32 · CNIL", "Tous"],
   ["EX-18", "Chaque donnée est supprimée à l’échéance", "Tâche de purge nocturne, inscrite au journal", "RGPD art. 5.1.e", "Tous"],
-  ["EX-19", "L’application est utilisable par les personnes en situation de handicap", "Audit et mise en conformité RGAA de l’app et du site", "Directive (UE) 2019/882 · RGAA", "Tous"]
+  ["EX-19", "L’application est utilisable par les personnes en situation de handicap", "Audit et mise en conformité RGAA de l’app et du site", "Directive (UE) 2019/882 · RGAA", "Tous"],
+  ["EX-20", "L’offre de paiement fractionné respecte le droit du crédit", "Option jamais présélectionnée, mentions fournies par le prêteur, aucune donnée financière collectée par FashMatch", "Directive (UE) 2023/2225 · ordonnance n° 2025-880 (au 20 nov. 2026)", "Paiement"],
+  ["EX-21", "Le client sait que son âge est estimé par une IA", "Écran d’information avant la prise de vue, avec les autres méthodes proposées", "AI Act art. 50.3 · RGPD art. 13", "Âge"]
 ];
 document.getElementById("trace").innerHTML = trace.map(r => `<tr><td class="id">${r[0]}</td><td class="from">${r[1]}</td><td>${r[2]}</td><td class="src">${r[3]}</td><td>${r[4]}</td></tr>`).join("");
 
@@ -508,26 +512,26 @@ const cards = [
 document.getElementById("cards").innerHTML = cards.map(([t, p]) => `<div class="card"><h3>${t}</h3><p>${p}</p></div>`).join("");
 
 const roles = [
-  ["Match", "Modèle de recommandation développé par FashMatch", "<span class='tag h'>Fournisseur</span>", "Pas de haut risque ; transparence et qualité des données"],
-  ["Cabine", "Modèle génératif open source hébergé sur le cloud souverain", "<span class='tag h'>Fournisseur du système</span>", "Marquage lisible par machine (art. 50.2) ; mention des hypertrucages (art. 50.4)"],
-  ["Stella", "Modèle d’un fournisseur européen, sans entraînement par FashMatch", "<span class='tag h'>Déployeur</span>", "Informer qu’il s’agit d’une IA (art. 50.1)"],
-  ["Âge et test du vivant", "Service d’un tiers de confiance", "<span class='tag h'>Déployeur</span>", "Information des personnes ; contrôle du sous-traitant"],
-  ["Paiement fractionné", "Délégué à un prestataire agréé", "<span class='tag h'>Hors périmètre</span>", "Obligations portées par le prestataire (haut risque, annexe III)"],
+  ["Match", "Modèle de recommandation développé par FashMatch", "<span class='tag h'>Fournisseur</span>", "Risque minimal ; RGPD (consentement, catégories sensibles exclues)"],
+  ["Cabine", "Modèle génératif open source (licence commerciale, ex. FLUX.1 schnell) hébergé dans l’UE", "<span class='tag h'>Fournisseur du système + déployeur</span>", "Marquage lisible par machine (art. 50.2), sans délai de grâce ; étiquetage de l’hypertrucage (art. 50.4) ; code de bonnes pratiques du 10 juin 2026"],
+  ["Stella", "Modèle Mistral intégré dans un assistant mis en service sous le nom FashMatch", "<span class='tag h'>Fournisseur du système + déployeur</span>", "Informer qu’il s’agit d’une IA (art. 50.1, à la charge du fournisseur du système) ; Mistral garde les obligations du modèle (art. 53)"],
+  ["Âge et test du vivant", "Service d’un tiers de confiance", "<span class='tag h'>Déployeur</span>", "Informer les personnes d’une catégorisation biométrique (art. 50.3) ; haut risque possible (annexe III 1.b) à suivre pour décembre 2027"],
+  ["Paiement fractionné", "Délégué à un prêteur agréé", "<span class='tag h'>Hors périmètre</span>", "Le prêteur porte le haut risque (annexe III 5.b, au 2 décembre 2027) et le droit du crédit"],
   ["Insight", "Retiré", "—", "—"]
 ];
 document.getElementById("rolesb").innerHTML = roles.map(r => `<tr><td class="from">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
 
 const open = [
-  "<span>DPO</span>Les mineurs de 15 à 17 ans ont-ils accès à la génération d’images d’eux-mêmes dans Cabine ?",
-  "<span>DPO</span>Quelle méthode alternative proposer quand un client conteste l’estimation de son âge (pièce d’identité via le tiers, autre) ?",
-  "<span>DPO</span>Le registre L4 doit suivre la V2 : Pay3x délégué, Stella sans conservation, nouveaux traitements (comptes, commandes, communication, consentements).",
-  "<span>Équipe</span>Choix du prestataire de paiement fractionné agréé (pistes : Alma, Oney, Floa, à comparer).",
-  "<span>Équipe</span>Choix de l’hébergeur souverain (pistes : OVHcloud, Scaleway, Outscale ; qualification SecNumCloud à vérifier).",
-  "<span>Équipe</span>Choix du fournisseur LLM (piste : Mistral AI) et vérification de la clause de non-conservation.",
-  "<span>L5</span>Confirmer les rôles AI Act proposés ci-dessus avec le livrable d’Enzo.",
-  "<span>2027</span>Option de Mélanie pour Stella (historique supprimable, amélioration du modèle avec droit d’opposition) : à étudier pour la feuille de route."
+  ["DPO", "Les 15–17 ans dans Cabine ?", "Ouvert en « mode protégé » : catalogue sans maillots ni lingerie, aucun export vers les réseaux sociaux, information adaptée. Repli : Cabine réservée aux 18 ans et plus.", "RGPD art. 8, 12 · loi I&L art. 45 · Code pénal art. 226-8"],
+  ["DPO", "Contester l’estimation de l’âge ?", "Trois méthodes au choix dès l’inscription (preuve en double anonymat via France Identité ou l’appli européenne, estimation avec marge, pièce d’identité supprimée après contrôle) et revue humaine par le support.", "CEPD déclaration 1/2025 · lignes directrices DSA art. 28 · RGPD art. 22"],
+  ["DPO", "Mettre le registre L4 à jour", "Retirer le scoring interne et le numéro de carte de Pay3x (le prêteur est responsable distinct) ; ajouter comptes, commandes, communication, consentements, journalisation, journal Cabine et vérification de l’âge.", "RGPD art. 28, 30"],
+  ["Équipe", "Quel prêteur pour le paiement fractionné ?", "Comparer Alma, Oney et Floa sur six critères : agrément REGAFI, parcours conforme au 20 nov. 2026 avec revue humaine, données dans l’UE, seul « accepté / refusé » renvoyé, contrat sur l’explication des refus, mentions publicitaires fournies.", "Directive (UE) 2023/2225 · ordonnance n° 2025-880"],
+  ["Équipe", "Quel hébergeur ?", "OVHcloud en hébergement standard en France : non soumis au CLOUD Act, processeurs graphiques pour Cabine, modèles Mistral servis sur place. SecNumCloud non obligatoire pour nous. Alternative : Scaleway.", "RGPD chapitre V · Tribunal UE T-553/23"],
+  ["Équipe", "Quel accès au modèle de langage ?", "Un modèle Mistral servi par l’hébergeur (conservation zéro à vérifier au contrat), plutôt que l’API Mistral, qui garde les requêtes 30 jours sauf dérogation accordée au cas par cas.", "RGPD art. 5.1.e, 28"],
+  ["L5", "Rôles AI Act", "Stella et Cabine : FashMatch fournisseur du système et déployeur. Âge : déployeur, avec l’information de l’art. 50.3. À confronter au livrable d’Enzo.", "AI Act art. 3.3, 3.4, 50"],
+  ["2027", "Option de Mélanie pour Stella", "Compatible avec la feuille de route 2027 : intérêt légitime, opposition préalable en un clic, historique supprimable, modèle auto-hébergé, AIPD. Incompatible avec la V2.", "CNIL, fiche du 19 juin 2025 · CEPD avis 28/2024"]
 ];
-document.getElementById("open").innerHTML = open.map(o => `<li>${o}</li>`).join("");
+document.getElementById("open").innerHTML = open.map(([who, q, p, s]) => `<li><span>${who}</span><b>${q}</b> ${p} <em class="src">${s}</em></li>`).join("");
 
 const chips = document.querySelectorAll(".chip");
 function apply(f){
